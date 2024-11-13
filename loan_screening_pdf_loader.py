@@ -1,8 +1,11 @@
-from langchain_community.document_loaders import PyPDFLoader
+import pdfplumber
+import pandas as pd
 
 def extract_text(file_path):
-    loader = PyPDFLoader(file_path)
-    pages = loader.load()
-    for page in pages:
-        
-    
+    df = pd.DataFrame()
+    with pdfplumber.open(file_path) as pdf:
+        for page in enumerate(pdf.pages):
+            text = page.extract_text()
+            tables = page.extract_table()
+            if tables:
+                
