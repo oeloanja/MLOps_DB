@@ -1,11 +1,4 @@
-import langchain
 from langchain_community.document_loaders import PDFMinerLoader
-import pdfplumber
-import camelot
-import pandas as pd
-import fitz
-import tabula
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 import re
 from langchain.schema import Document
 
