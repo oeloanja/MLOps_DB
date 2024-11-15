@@ -1,14 +1,15 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.vectorstores import Chroma
+from sentence_transformers import SentenceTransformer
 
-def embedding(docs):
-    pass
+embedding_model = HuggingFaceEmbeddings(model_name = 'BAAI/bge-m3', model_kwargs = {'device' : 'cpu'}, encode_kwargs={'normalize_embeddings':True},)
 
-def get_vectorstore(docs, collection, embedding_func, dir_path):
+
+def get_vectorstore(docs, collection, dir_path):
     vec_store = Chroma.from_documents(
         collection_name = collection,
         documents = docs,
-        embedding = embedding_func,
+        embedding = embedding_model,
         persist_directory = dir_path
     )
     return vec_store
