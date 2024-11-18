@@ -1,13 +1,6 @@
-from flask import Flask, request, jsonify
+from sqlalchemy import create_engine, text
 
-app = Flask(__name__)
+external_engine = create_engine('external_db')
 
-@app.route('/chat', methods=['POST'])
-def chat():
-    user_id = request.json.get("user_id")
-    message = request.json.get("message")
-    print(f"User ID: {user_id}, Message: {message}")
-    return jsonify({"reply": f"Hello, user {user_id}!"})
-
-if __name__ == '__main__':
-    app.run(port=5000)
+def get_user_id():
+    pass
