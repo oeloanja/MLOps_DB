@@ -16,7 +16,7 @@ class chatbot_chain():
         #self.user_id = user_id
         self.prompt = ChatPromptTemplate([
 
-                                            ("system", "당신은 한국에 사는 외국인 노동자들을 위한 대출 상담 챗봇입니다. 사용자가 외국어로 물어봤을 때 해당 언어로 대답해야 합니다."),
+                                            ("system", "당신은 한국에 사는 외국인 노동자들을 위한 대출 상담 챗봇입니다. 사용자가 외국어로 물어봤을 때 해당 언어로 대답해야 합니다. 대답은 짧고 간결하게 해야합니다. 주어진 질문에만 답하세요."),
                                             ("human", '{question}'),
                                             ("assistant", "{retriever}")
                                         ])
@@ -26,7 +26,7 @@ class chatbot_chain():
         tokenizer = self.tokenizer
         pad_token = tokenizer.convert_tokens_to_ids("<|end_of_text|>")
         eos_token = tokenizer.convert_tokens_to_ids("<eot_id>")
-        gen_pipeline = pipeline(model = self.model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 512, pad_token_id = pad_token, eos_token_id = eos_token)
+        gen_pipeline = pipeline(model = self.model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 256, pad_token_id = pad_token, eos_token_id = eos_token)
         llm = HuggingFacePipeline(pipeline = gen_pipeline)
         prompt = self.prompt
         llm_chain = prompt | llm
