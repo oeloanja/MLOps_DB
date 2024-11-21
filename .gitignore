@@ -3,3 +3,4 @@ __pycache__/
 MLOps_chatbot/
 LLM/
 TOKENIZER/
+.env
