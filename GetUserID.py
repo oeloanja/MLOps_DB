@@ -1,13 +1,51 @@
 from flask import Flask, request, jsonify
-app = Flask(__name__)
+from flask_sqlalchemy import SQLAlchemy
 
-@app.route('/GetUserID', methods = ['GET', 'POST'])
-def GetUserID():
-    if request.method == 'GET':
-        id = request.args['id']
-        name = request.args.get('name')
-        return jsonify(name, id)
-    elif request.method == 'POST':
-        id = request.form['id']
-        name = request.form['name']
-        return jsonify(name, id)
+app = Flask(__name__)
+app.config['USER_DATABASE_URI'] = 'dburiborrow'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+
+@app.route('/api/v1/user_service/users/borrow', methods = ['GET'])
+def GetUserIDBorrow():
+    user_id = request.args.get('userID')
+    return user_id
+
+@app.route('/api/users/invest', methods = ['GET'])
+def GetUserIDInvest():
+    user_id = request.args.get('userID')
+    return user_id
+
+class UserBorrow(db.Model):
+    __tablename__ = 'user_borrow'
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String, nullable = False)
+
+class UserInvest(db.Model):
+    __tablename__ = 'user_invest'
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String, nullable = False)
+
+@app.route('/api/users/borrow/mypage', methods = ['GET'])
+def GetUserNameBorrow(userid = None):
+    if userid is None:
+        userid = GetUserIDBorrow()
+    user = UserBorrow.query.get(userid)
+    if user:
+        user_name = user.username
+        return user_name
+    else:
+        return None
+
+@app.route('/api/users/invest/mypage', methods = ['GET'])
+def GetUserNameInvest(userid = None):
+    if userid is None:
+        userid = GetUserIDInvest()
+    user = UserInvest.query.get(userid)
+    if user:
+        user_name = user.username
+        return user_name
+    else:
+        return None
