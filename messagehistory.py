@@ -3,9 +3,9 @@ import getuserid
 
 class MessageHistory():
     def __init__(self, connectstring, table):
-        self.userid = self._get_user_id()
         self.connectstring = connectstring
         self.table = table
+        self.userid = self._get_user_id()
     
     def get_func(func1, func2):
         def wrapper(*args, **kwargs):
