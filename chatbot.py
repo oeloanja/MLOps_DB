@@ -59,5 +59,10 @@ class NonLoginChatbotChain():
         rag_chain = rag_context | llm_chain
         return rag_chain
     
-    
+class LoginChatbotChain():
+    def __init__(self, connectstring, table, model, tokenizer, *args, **kwargs):
+        self.history_obj = MessageHistory(connectstring = connectstring, table = table)
+        self.model = model
+        self.tokenizer = tokenizer
+        
     
