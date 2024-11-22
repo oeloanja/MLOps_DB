@@ -20,7 +20,8 @@ class retriever():
             commander = LongContextReorder()
             searched_docs = func(*args, **kwargs)
             reordered_docs = commander.transform_documents(searched_docs)
-            return reordered_docs
+            reordered_content = [reordered_doc.page_content for reordered_doc in reordered_docs]
+            return reordered_content
         return wrapper
         
     @reorder
