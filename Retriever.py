@@ -9,6 +9,13 @@ class retriever():
     def __init__(self, vec_db, searched):
         self.vec_db = vec_db
         self.searched = searched
+        
+    def __call__(self, input):
+        query = self.preprocess_query(input)
+        return self.get_docs(query)
+
+    def preprocess_query(self, input):
+        return input.get("input", "")
 
     def get_retriever(self):
         vec_store = self.vec_db
@@ -20,12 +27,13 @@ class retriever():
             commander = LongContextReorder()
             searched_docs = func(*args, **kwargs)
             reordered_docs = commander.transform_documents(searched_docs)
-            reordered_content = [reordered_doc.page_content for reordered_doc in reordered_docs]
-            return reordered_content
+            return reordered_docs
         return wrapper
         
     @reorder
     def get_docs(self, query):
         retriever = self.get_retriever()
-        docs = retriever.invoke(query)
+        if not isinstance(query, str):  # query가 문자열인지 확인
+            raise ValueError(f"Expected a string query, but got {type(query).__name__}")
+        docs = retriever.get_relevant_documents(query)
         return docs

@@ -26,8 +26,8 @@ class NonLoginChatbotChain():
         self.store = {}
         self.prompt = ChatPromptTemplate.from_messages([
                                             ("system", system_prompt),
+                                            MessagesPlaceholder(variable_name='history'),
                                             ("human", '{input}'),
-                                            MessagesPlaceholder(variable_name='history')
                                             ("assistant", "{retriever}")
                                         ])
         
@@ -53,13 +53,13 @@ class NonLoginChatbotChain():
     
     def get_chain_with_rag(self, dir_path, collection, k):
         vec_db = VectorStore.load_vectorstore(dir_path, collection)
-        chain_retriever = retriever(vec_db, searched = k).get_retriever()
+        chain_retriever = retriever(vec_db, searched = k)
         llm_chain = self._get_llmchain()
         session_history = self.get_session_history().messages
         rag_history = dict(zip(session_history))
-        rag_context = {"input" : RunnablePassthrough(), "retriever" : chain_retriever, "history" : rag_history}
+        rag_context = {"input" : RunnablePassthrough(), "retriever" : chain_retriever}
         rag_chain = rag_context | llm_chain | StrOutputParser()
-        rag_chain_with_history = RunnableWithMessageHistory(itemgetter('input') | rag_chain, self.get_session_history,
+        rag_chain_with_history = RunnableWithMessageHistory(self.get_session_history, rag_chain,
                                                             input_messages_key = "input",
                                                             history_messages_key = "history")
         return rag_chain_with_history

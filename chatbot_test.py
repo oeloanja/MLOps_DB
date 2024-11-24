@@ -14,7 +14,7 @@ llm_tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir = './TOKENIZER
 test_chatbot_chain = NonLoginChatbotChain(model = llm_model, tokenizer = llm_tokenizer, session_id = 'test')
 rag_chatbot = test_chatbot_chain.get_chain_with_rag(dir_path='./MLOps_chatbot', collection='testdb', k = 3)
 '''
-test2 = RagChain('./MLops_chatbot', 'testdb', 3, llm_model, llm_tokenizer)
+test2 = RagChain(dir_path='./MLops_chatbot', collection='testdb', searched=3, llm=llm_model, tokenizer=llm_tokenizer)
 rag_chatbot = test2.get_rag_chain()
 start_time1 = time.time()
 result = test2.answer_to_me("개인신용평가대응권이 뭐야?")
