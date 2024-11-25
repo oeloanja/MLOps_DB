@@ -2,7 +2,6 @@ from Retriever import retriever
 import VectorStore
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.chains import RetrievalQA
 #from messagehistory import MessageHistory
 from transformers import pipeline
 from langchain_core.runnables import RunnablePassthrough
@@ -12,9 +11,12 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from operator import itemgetter
 from langchain_core.output_parsers import StrOutputParser
+#import getuserid
+#from langchain_core.pydantic_v1 import BaseModel, Field
 
 
-system_prompt = "당신은 한국에 사는 외국인 노동자들을 위한 대출 상담 챗봇입니다. question과 맞는 언어로 답해야 합니다. 만약 question이 태국어로 되어있으면 태국어로 답해야 합니다. question의 언어를 모르는 경우 한국어로 답하세요. 모르는 부분은 retriever를 꼭 활용하세요. 토큰을 다 안써도 되니 답변을 짧고 간결하게 생성하세요. 다음의 예시를 참고해 question에 맞는 답변을 생성하세요. 예시 - 질문:강아지가 뭐야? 답변:강아지는 어린 개를 의미합니다."
+
+system_prompt = "당신은 한국에 사는 외국인 노동자들을 위한 대출 상담 챗봇입니다. input과 맞는 언어로 답해야 합니다. 만약 input이 태국어로 되어있으면 태국어로 답해야 합니다. input의 언어를 모르는 경우 한국어로 답하세요. 모르는 부분은 retriever를 꼭 활용하세요. 토큰을 다 안써도 되니 답변을 짧고 간결하게 생성하세요. 다음의 예시를 참고해 question에 맞는 답변을 생성하세요. 예시 - 질문:강아지가 뭐야? 답변:강아지는 어린 개를 의미합니다."
 
 class NonLoginChatbotChain():
     def __init__(self, model, tokenizer, session_id:str, *args, **kwargs):
@@ -24,6 +26,7 @@ class NonLoginChatbotChain():
         self.store = {}
         self.prompt = ChatPromptTemplate.from_messages([
                                             ("system", system_prompt),
+                                            MessagesPlaceholder(variable_name='history'),
                                             ("human", '{input}'),
                                             ("assistant", "{retriever}")
                                         ])
@@ -50,21 +53,35 @@ class NonLoginChatbotChain():
     
     def get_chain_with_rag(self, dir_path, collection, k):
         vec_db = VectorStore.load_vectorstore(dir_path, collection)
-        chain_retriever = retriever(vec_db, searched = k).get_retriever()
+        chain_retriever = retriever(vec_db, searched = k)
         llm_chain = self._get_llmchain()
         session_history = self.get_session_history().messages
         rag_history = dict(zip(session_history))
-        rag_context = {"input" : RunnablePassthrough(), "retriever" : chain_retriever, "history" : rag_history}
+        rag_context = {"input" : RunnablePassthrough(), "retriever" : chain_retriever}
         rag_chain = rag_context | llm_chain | StrOutputParser()
-        rag_chain_with_history = RunnableWithMessageHistory(itemgetter('input') | rag_chain, self.get_session_history,
+        rag_chain_with_history = RunnableWithMessageHistory(self.get_session_history, rag_chain,
                                                             input_messages_key = "input",
                                                             history_messages_key = "history")
         return rag_chain_with_history
-'''    
+'''
+class SimpleCreditScreening(BaseModel):
+    """Simple credit screening using ml"""
+    age : int
+    income : int
+    '''
+'''
 class LoginChatbotChain():
     def __init__(self, connectstring, table, model, tokenizer, *args, **kwargs):
         self.history_obj = MessageHistory(connectstring = connectstring, table = table)
         self.model = model
         self.tokenizer = tokenizer
-'''    
+        self.user_id = self._get_user_id()
     
+    def _get_user_id(self):
+        user_id = getuserid.GetUserIDBorrow()
+        if user_id is None:
+            user_id = getuserid.GetUserIDInvest()
+        return user_id
+    
+    def get_store_sql(self):
+'''
