@@ -60,3 +60,19 @@ class RagChain():
         )
         return result
         
+class LoginChain():
+    def __init__(self, dir_path, collection, searched:int, llm, tokenizer):
+        self.vecdb = VectorStore.load_vectorstore(dir_path, collection)
+        self.retriever = retriever(self.vecdb, searched)
+        self.model = llm
+        self.tokenizer = tokenizer
+        self.prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                MessagesPlaceholder(variable_name="chat_history"),
+                ("human", "{input}"),
+                ("assistant", "{retriever}")
+            ]
+        )
+    def get_tools(self):
+        pass
