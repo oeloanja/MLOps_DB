@@ -8,7 +8,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-@app.route('/api/v1/user_service/users/borrow', methods = ['GET'])
+@app.route('/borrow', methods = ['GET'])
 def GetUserIDBorrow():
     user_id = request.args.get('userID')
 
@@ -18,7 +18,7 @@ def GetUserIDBorrow():
     
     return user_id
 
-@app.route('/api/users/invest', methods = ['GET'])
+@app.route('/invest', methods = ['GET'])
 def GetUserIDInvest():
     user_id = request.args.get('userID')
     return user_id
