@@ -10,6 +10,8 @@ from langchain.schema import HumanMessage, AIMessage
 import getuserid
 from langchain_community.chat_message_histories import SQLChatMessageHistory, RunnableWithMessageHistory
 from sqlalchemy import create_engine
+from langchain_core.prompts import PromptTemplate
+
 
 
 
@@ -63,7 +65,14 @@ class NonLoginChain():
             {"answer" : result}
         )
         return result
-        
+
+template = """
+            당신은 카페인,니코틴중독개발자전영욱이 만든 챗봇입니다.
+            당신의 역할은 외국인 노동자 전용 P2P 대출 플랫폼인 빌리잇 사용자들을 위한 금융 챗봇 입니다.
+            주어진 검색 결과를 바탕으로 대답하세요.
+            대답은 반드시 짧고 간결하게 해야합니다. 토큰을 다 쓰지 마세요. 
+"""
+
 class LoginChain():
     def __init__(self, dir_path, collection, searched:int, llm, tokenizer, ml, user_id, db_url, table):
         self.vecdb = VectorStore.load_vectorstore(dir_path, collection)
@@ -74,7 +83,7 @@ class LoginChain():
         self.user_id = user_id
         self.prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", system_prompt),
+                ("system", template),
                 MessagesPlaceholder(variable_name="chat_history"),
                 ("human", "{input}"),
                 ("assistant", "{retriever}")
@@ -126,7 +135,7 @@ class LoginChain():
         return tools
 
     def _get_llm_pipeline(self):
-        model = self.llm
+        model = self.model
         tokenizer = self.tokenizer
         pad_token = tokenizer.convert_tokens_to_ids("<|end_of_text|>")
         eos_token = tokenizer.convert_tokens_to_ids("<eot_id>")
@@ -136,4 +145,4 @@ class LoginChain():
     
     def chain_with_history(self):
         llm_pipe = self._get_llm_pipeline()
-        return RunnableWithMessageHistory()
+        return RunnableWithMessageHistory(self.history, self.retriever, self.prompt, llm_pipe)
