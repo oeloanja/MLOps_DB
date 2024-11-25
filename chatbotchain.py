@@ -7,6 +7,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from operator import itemgetter
 from langchain.schema import HumanMessage, AIMessage
+from messagehistory import MessageHistory
 
 
 system_prompt = """
@@ -19,7 +20,7 @@ system_prompt = """
                 저번에 한 질문이 뭐였지? 라는 질문엔 저번에 한 질문만 찾아서 답해주면 됩니다.
                 """
 
-class RagChain():
+class NonLoginChain():
     def __init__(self, dir_path, collection, searched, llm, tokenizer):
         self.vec_db = VectorStore.load_vectorstore(dir_path, collection)
         self.retriever = retriever(self.vec_db, searched)
@@ -61,11 +62,13 @@ class RagChain():
         return result
         
 class LoginChain():
-    def __init__(self, dir_path, collection, searched:int, llm, tokenizer):
+    def __init__(self, dir_path, collection, searched:int, llm, tokenizer, ml, db_url, table):
         self.vecdb = VectorStore.load_vectorstore(dir_path, collection)
         self.retriever = retriever(self.vecdb, searched)
         self.model = llm
         self.tokenizer = tokenizer
+        self.ml = ml
+        self.user_id = 'testing123'
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system_prompt),
@@ -74,5 +77,16 @@ class LoginChain():
                 ("assistant", "{retriever}")
             ]
         )
-    def get_tools(self):
-        pass
+        self.history = MessageHistory(db_url, table)
+
+    def get_simple_screening(self, income, job_duration, age, home_ownership):
+        ml = self.ml
+        data_info = {
+            "income" : income,
+            "job_duration" : job_duration,
+            "age" : age,
+            "home_ownership" : home_ownership
+        }
+        result = ml.predict(income, job_duration, age, home_ownership)
+        return result
+    
