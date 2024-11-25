@@ -90,3 +90,33 @@ class LoginChain():
         result = ml.predict(income, job_duration, age, home_ownership)
         return result
     
+    def get_tools(self):
+        simple_screening_tools = {
+            "type" : "function",
+            "function" : {
+                "name" : "get_simple_screening",
+                "description" : "고객에 대한 간단한 대출심사를 합니다. 예를들어 '나 대출심사 해줘'라는 요청이 오면 파라미터를 입력 받아 정의된 함수를 호출해 결과를 알려줍니다.",
+                "parameters" : {
+                    "income" : {
+                        "type" : int,
+                        "description" : "연봉"
+                    },
+                    "job_duration" : {
+                        "type" : int,
+                        "description" : "경력"
+                    },
+                    "age" : {
+                        "type" : int,
+                        "description" : "나이"
+                    },
+                    "home_ownership" : {
+                        "type" : int,
+                        "description" : "주택 소유 여부. 자가 : 0, 임대 : 1"
+                    },
+                    "required" : ["income", "job_duration", "age", "home_ownership"],
+                    "additionalProperties" : False
+                }
+            }
+        }
+        tools = [simple_screening_tools]
+        return tools
