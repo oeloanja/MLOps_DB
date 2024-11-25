@@ -7,7 +7,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from operator import itemgetter
 from langchain.schema import HumanMessage, AIMessage
-from messagehistory import MessageHistory
+import getuserid
+from langchain_community.chat_message_histories import SQLChatMessageHistory, RunnableWithMessageHistory
+from sqlalchemy import create_engine
+
 
 
 system_prompt = """
@@ -62,13 +65,13 @@ class NonLoginChain():
         return result
         
 class LoginChain():
-    def __init__(self, dir_path, collection, searched:int, llm, tokenizer, ml, db_url, table):
+    def __init__(self, dir_path, collection, searched:int, llm, tokenizer, ml, user_id, db_url, table):
         self.vecdb = VectorStore.load_vectorstore(dir_path, collection)
         self.retriever = retriever(self.vecdb, searched)
         self.model = llm
         self.tokenizer = tokenizer
         self.ml = ml
-        self.user_id = 'testing123'
+        self.user_id = user_id
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system_prompt),
@@ -77,7 +80,8 @@ class LoginChain():
                 ("assistant", "{retriever}")
             ]
         )
-        self.history = MessageHistory(db_url, table)
+        engine = create_engine(db_url)
+        self.history = SQLChatMessageHistory(session_id = self.user_id, table_name = 'chattingmsg', connection = engine)
 
     def get_simple_screening(self, income, job_duration, age, home_ownership):
         ml = self.ml
@@ -120,3 +124,16 @@ class LoginChain():
         }
         tools = [simple_screening_tools]
         return tools
+
+    def _get_llm_pipeline(self):
+        model = self.llm
+        tokenizer = self.tokenizer
+        pad_token = tokenizer.convert_tokens_to_ids("<|end_of_text|>")
+        eos_token = tokenizer.convert_tokens_to_ids("<eot_id>")
+        gen_pipeline = pipeline(model = model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 256, pad_token_id = pad_token, eos_token_id = eos_token)
+        llm_pipeline = HuggingFacePipeline(pipeline = gen_pipeline)
+        return llm_pipeline
+    
+    def chain_with_history(self):
+        llm_pipe = self._get_llm_pipeline()
+        return RunnableWithMessageHistory()
