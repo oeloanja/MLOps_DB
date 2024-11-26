@@ -10,7 +10,10 @@ from langchain.schema import HumanMessage, AIMessage
 #import getuserid
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
-from langchain_core.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain.schema.runnable import RunnableMap
+
+
 
 
 
@@ -68,10 +71,19 @@ class NonLoginChain():
         return result
 
 template = """
-            당신은 카페인,니코틴중독개발자전영욱이 만든 챗봇입니다.
-            당신의 역할은 외국인 노동자 전용 P2P 대출 플랫폼인 빌리잇 사용자들을 위한 금융 챗봇 입니다.
-            주어진 검색 결과를 바탕으로 대답하세요.
-            대답은 반드시 짧고 간결하게 해야합니다. 토큰을 다 쓰지 마세요. 
+            당신은 카페인, 니코틴 중독 개발자 전영욱이 만든 챗봇입니다.
+            당신의 역할은 외국인 노동자 전용 P2P 대출 플랫폼인 빌리잇 사용자들을 위한 금융 챗봇입니다.
+            아래의 규칙을 반드시 따르세요:
+            1. 질문에 대한 대답만 생성하세요. 절대 새로운 질문을 생성하지 마세요.
+            2. 대답은 반드시 짧고 간결하게 하세요.
+            3. 대답 후 추가적인 정보를 제공하거나 다른 주제를 제시하지 마세요.
+            4. 사용자 질문 외의 내용은 대답하지 마세요.
+            5. 무조건 대화기록과 검색결과를 바탕으로 대답하세요. 이건 무조건 지켜야 합니다.
+
+            대화기록 : {chat_history}
+            검색결과 : {context}
+            Question: {input}
+            Answer: 
 """
 
 class LoginChain(NonLoginChain):
@@ -81,16 +93,9 @@ class LoginChain(NonLoginChain):
         self.tokenizer = tokenizer
         #self.ml = ml
         self.user_id = user_id
-        self.prompt = ChatPromptTemplate.from_messages(
-            [
-                ("system", template),
-                MessagesPlaceholder(variable_name="chat_history"),
-                ("human", "{input}"),
-                ("assistant", "{retriever}")
-            ]
-        )
-        engine = create_engine(db_url)
-        self.memory = SQLChatMessageHistory(session_id = self.user_id, table_name = user_id, connection = engine)
+        self.prompt = ChatPromptTemplate.from_template(template)
+        self.engine = create_engine(db_url)
+        self.memory = SQLChatMessageHistory(session_id = self.user_id, table_name = user_id, connection = self.engine)
         self.vecdb = self.vec_db
         self.retriever = retriever(self.vecdb, searched)
     '''
@@ -139,17 +144,26 @@ class LoginChain(NonLoginChain):
 
     def load_memories(self):
         memory = self.memory
-        history = memory.messages
+        history = memory.get_messages()
         history_dict = [{'role' : message.role, 'content' : message.content} for message in history]
         return history_dict
+    
+    def _get_history(self):
+        return self.memory
 
     def get_rag_chain_history(self):
         llm_pipe = self._get_llm_pipeline()
-        rag_context = {'chat_history' : self.load_memories, 'input' : RunnablePassthrough(), 'retriever' : self.retriever}
-        rag_chain = rag_context | self.prompt | llm_pipe
+        rag_chain = ({"chat_history": (lambda x : self.memory),
+                      "context" : self.retriever,
+                     "input" : itemgetter("input")}
+                     | self.prompt
+                     | llm_pipe
+                     | StrOutputParser())
         return rag_chain
 
     def answer_to_me(self, question):
         chain = self.get_rag_chain_history()
-        result = chain.invoke(question)
+        result = chain.invoke({"input" : question})
+        self.memory.add_user_message(question)
+        self.memory.add_ai_message(result)
         return result
