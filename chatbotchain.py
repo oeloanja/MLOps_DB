@@ -147,10 +147,9 @@ class LoginChain(NonLoginChain):
         llm_pipe = self._get_llm_pipeline()
         rag_context = {'chat_history' : self.load_memories, 'input' : RunnablePassthrough(), 'retriever' : self.retriever}
         rag_chain = rag_context | self.prompt | llm_pipe
-        chain = RunnableWithMessageHistory(rag_chain, get_session_history = self.load_memories, input_messages_key = 'input', history_messages_key = 'chat_history')
-        return chain
+        return rag_chain
 
     def answer_to_me(self, question):
         chain = self.get_rag_chain_history()
-        result = chain.invoke({'input' : question}, config = {'configurable' : {'user_id' : self.user_id}})
+        result = chain.invoke(question)
         return result
