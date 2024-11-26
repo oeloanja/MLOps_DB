@@ -7,10 +7,11 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from operator import itemgetter
 from langchain.schema import HumanMessage, AIMessage
-import getuserid
-from langchain_community.chat_message_histories import SQLChatMessageHistory, RunnableWithMessageHistory
+#import getuserid
+from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
 from langchain_core.prompts import PromptTemplate
+
 
 
 
@@ -73,13 +74,12 @@ template = """
             대답은 반드시 짧고 간결하게 해야합니다. 토큰을 다 쓰지 마세요. 
 """
 
-class LoginChain():
-    def __init__(self, dir_path, collection, searched:int, llm, tokenizer, ml, user_id, db_url, table):
-        self.vecdb = VectorStore.load_vectorstore(dir_path, collection)
-        self.retriever = retriever(self.vecdb, searched)
+class LoginChain(NonLoginChain):
+    def __init__(self, llm, tokenizer, user_id, db_url, dir_path, collection, searched):
+        super().__init__(dir_path, collection, searched, llm, tokenizer)
         self.model = llm
         self.tokenizer = tokenizer
-        self.ml = ml
+        #self.ml = ml
         self.user_id = user_id
         self.prompt = ChatPromptTemplate.from_messages(
             [
@@ -90,8 +90,10 @@ class LoginChain():
             ]
         )
         engine = create_engine(db_url)
-        self.history = SQLChatMessageHistory(session_id = self.user_id, table_name = 'chattingmsg', connection = engine)
-
+        self.memory = SQLChatMessageHistory(session_id = self.user_id, table_name = user_id, connection = engine)
+        self.vecdb = self.vec_db
+        self.retriever = retriever(self.vecdb, searched)
+    '''
     def get_simple_screening(self, income, job_duration, age, home_ownership):
         ml = self.ml
         data_info = {
@@ -133,16 +135,21 @@ class LoginChain():
         }
         tools = [simple_screening_tools]
         return tools
+    '''
 
-    def _get_llm_pipeline(self):
-        model = self.model
-        tokenizer = self.tokenizer
-        pad_token = tokenizer.convert_tokens_to_ids("<|end_of_text|>")
-        eos_token = tokenizer.convert_tokens_to_ids("<eot_id>")
-        gen_pipeline = pipeline(model = model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 256, pad_token_id = pad_token, eos_token_id = eos_token)
-        llm_pipeline = HuggingFacePipeline(pipeline = gen_pipeline)
-        return llm_pipeline
-    
-    def chain_with_history(self):
+    def load_memories(self):
+        memory = self.memory
+        history = memory.messages
+        history_dict = [{'role' : message.role, 'content' : message.content} for message in history]
+        return history_dict
+
+    def get_rag_chain_history(self):
         llm_pipe = self._get_llm_pipeline()
-        return RunnableWithMessageHistory(self.history, self.retriever, self.prompt, llm_pipe)
+        rag_context = {'chat_history' : self.load_memories, 'input' : RunnablePassthrough(), 'retriever' : self.retriever}
+        rag_chain = rag_context | self.prompt | llm_pipe
+        return rag_chain
+
+    def answer_to_me(self, question):
+        chain = self.get_rag_chain_history()
+        result = chain.invoke(question)
+        return result

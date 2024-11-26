@@ -6,3 +6,4 @@ TOKENIZER/
 .env
 LLM2/
 TOKENIZER2/
+*.csv
