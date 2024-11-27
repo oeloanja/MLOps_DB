@@ -33,16 +33,16 @@ def get_id():
     return user_id
 
 user_id = get_id()
-non = NonLoginChain(dir_path, collection, k, llm_model, llm_tokenizer)
-login = LoginChain(llm_model, llm_tokenizer, user_id, db, dir_path, collection, k)
 
 
 @app.route('/chat', methods = ['GET', 'POST'])
 def chat(question):
     if user_id is None:
-        result = non.answer_to_me(question)
+        chain = NonLoginChain(dir_path, collection, k, llm_model, llm_tokenizer)
+        result = chain.answer_to_me(question)
     else:
-        result = login.answer_to_me(question)
+        chain = LoginChain(llm_model, llm_tokenizer, user_id, db, dir_path, collection, k)
+        result = chain.answer_to_me(question)
     return result
 
 if __name__ == "__main__":
