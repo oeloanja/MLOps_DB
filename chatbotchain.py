@@ -146,13 +146,9 @@ class LoginChain(NonLoginChain):
         memory = self.memory
         history = memory.get_messages()
         return [msg.pretty_repr() for msg in history]
-    
-    def _get_history(self):
-        return self.memory
 
     def get_rag_chain_history(self):
         llm_pipe = self._get_llm_pipeline()
-        chat_history = self.memory.get_messages()
         rag_chain = ({"chat_history": lambda x: self.load_memories(),
                       "context" : self.retriever,
                      "input" : itemgetter("input")}
