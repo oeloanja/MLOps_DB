@@ -91,11 +91,11 @@ template = """
 """
 
 class LoginChain(NonLoginChain):
-    def __init__(self, llm, tokenizer, user_id, db_url, dir_path, collection, searched):
+    def __init__(self, llm, tokenizer, user_id, db_url, dir_path, collection, searched, ml):
         super().__init__(dir_path, collection, searched, llm, tokenizer)
         self.model = llm
         self.tokenizer = tokenizer
-        #self.ml = ml
+        self.ml = ml
         self.user_id = user_id
         self.prompt = ChatPromptTemplate.from_template(template)
         self.engine = create_engine(db_url)
@@ -103,11 +103,10 @@ class LoginChain(NonLoginChain):
         self.vecdb = self.vec_db
         self.retriever = retriever(self.vecdb, searched)
 
-    @tool
-    def get_simple_screening(self, income:int, job_duration:int, age:int, home_ownership:int):
+    def get_simple_screening(self, income:float, job_duration:int, dti:float, loan_amnt:float):
         """주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행."""
         ml = self.ml
-        return ml.predict(income, job_duration, age, home_ownership)
+        return ml.predict(loan_amnt, dti, job_duration, income)
     
     def get_tools(self):
         simple_screening_tools = {
@@ -117,22 +116,22 @@ class LoginChain(NonLoginChain):
                 "description" : "고객에 대한 간단한 대출심사를 합니다. 예를들어 '나 대출심사 해줘'라는 요청이 오면 파라미터를 입력 받아 정의된 함수를 호출해 결과를 알려줍니다.",
                 "parameters" : {
                     "income" : {
-                        "type" : int,
+                        "type" : float,
                         "description" : "연봉"
                     },
                     "job_duration" : {
                         "type" : int,
                         "description" : "경력"
                     },
-                    "age" : {
-                        "type" : int,
-                        "description" : "나이"
+                    "dti" : {
+                        "type" : float,
+                        "description" : "소득 대비 부채 비율"
                     },
-                    "home_ownership" : {
-                        "type" : int,
-                        "description" : "주택 소유 여부. 자가 : 0, 임대 : 1"
+                    "loan_amnt" : {
+                        "type" : float,
+                        "description" : "대출 받고자 하는 금액"
                     },
-                    "required" : ["income", "job_duration", "age", "home_ownership"],
+                    "required" : ["income", "job_duration", "dti", "loan_amnt"],
                     "additionalProperties" : False
                 }
             }
