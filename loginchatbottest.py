@@ -3,11 +3,12 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 import time
 
 model_id = "Bllossom/llama-3.2-Korean-Bllossom-3B"
+model_id2 = "NakJun/Llama-3.2-1B-Instruct-ko-QuAD"
 llm_model = AutoModelForCausalLM.from_pretrained(model_id, cache_dir = './LLM', do_sample = False)
 llm_tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir = './TOKENIZER')
 
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'nguyen1007'
+user_id = 'nguyen1008'
 dir_path = './MLOps_chatbot'
 collection = 'testdb'
 
