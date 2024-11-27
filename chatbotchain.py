@@ -73,16 +73,17 @@ class NonLoginChain():
 template = """
             당신은 카페인, 니코틴 중독 개발자 전영욱이 만든 챗봇입니다.
             당신의 역할은 외국인 노동자 전용 P2P 대출 플랫폼인 빌리잇 사용자들을 위한 금융 챗봇입니다.
+            사용자의 질문에 맞는 대답을 하세요.
             아래의 규칙을 반드시 따르세요:
-            1. 질문에 대한 대답만 생성하세요. 절대 새로운 질문을 생성하지 마세요.
-            2. 대답은 반드시 짧고 간결하게 하세요.
+            1. 질문에 대한 대답만 생성하세요. 절대 새로운 질문을 생성하지 마세요. 이건 무조건 지켜야 합니다.
+            2. 대답은 반드시 짧고 간결하게 하세요. 이건 반드시 지키세요.
             3. 대답 후 추가적인 정보를 제공하거나 다른 주제를 제시하지 마세요.
             4. 사용자 질문 외의 내용은 대답하지 마세요.
             5. 무조건 대화기록과 검색결과를 바탕으로 대답하세요. 이건 무조건 지켜야 합니다.
 
             대화기록 : {chat_history}
             검색결과 : {context}
-            Question: {input}
+            질문: {input}
             Answer: 
 """
 
@@ -98,7 +99,7 @@ class LoginChain(NonLoginChain):
         self.memory = SQLChatMessageHistory(session_id = self.user_id, table_name = user_id, connection = self.engine)
         self.vecdb = self.vec_db
         self.retriever = retriever(self.vecdb, searched)
-    '''
+
     def get_simple_screening(self, income, job_duration, age, home_ownership):
         ml = self.ml
         data_info = {
@@ -140,20 +141,19 @@ class LoginChain(NonLoginChain):
         }
         tools = [simple_screening_tools]
         return tools
-    '''
 
     def load_memories(self):
         memory = self.memory
         history = memory.get_messages()
-        history_dict = [{'role' : message.role, 'content' : message.content} for message in history]
-        return history_dict
+        return [msg.pretty_repr() for msg in history]
     
     def _get_history(self):
         return self.memory
 
     def get_rag_chain_history(self):
         llm_pipe = self._get_llm_pipeline()
-        rag_chain = ({"chat_history": (lambda x : self.memory),
+        chat_history = self.memory.get_messages()
+        rag_chain = ({"chat_history": lambda x: self.load_memories(),
                       "context" : self.retriever,
                      "input" : itemgetter("input")}
                      | self.prompt
