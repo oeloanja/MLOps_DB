@@ -12,6 +12,8 @@ from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
 from langchain_core.output_parsers import StrOutputParser
 from langchain.schema.runnable import RunnableMap
+from langchain.agents import initialize_agent, Tool
+from langchain_core.tools import tool
 
 
 
@@ -50,7 +52,7 @@ class NonLoginChain():
         tokenizer = self.tokenizer
         pad_token = tokenizer.convert_tokens_to_ids("<|end_of_text|>")
         eos_token = tokenizer.convert_tokens_to_ids("<eot_id>")
-        gen_pipeline = pipeline(model = model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 256, pad_token_id = pad_token, eos_token_id = eos_token)
+        gen_pipeline = pipeline(model = model, tokenizer = tokenizer, task = 'text-generation', return_full_text = False, max_new_tokens = 128, pad_token_id = pad_token, eos_token_id = eos_token)
         llm_pipeline = HuggingFacePipeline(pipeline = gen_pipeline)
         return llm_pipeline
     
@@ -80,6 +82,7 @@ template = """
             3. 대답 후 추가적인 정보를 제공하거나 다른 주제를 제시하지 마세요.
             4. 사용자 질문 외의 내용은 대답하지 마세요.
             5. 무조건 대화기록과 검색결과를 바탕으로 대답하세요. 이건 무조건 지켜야 합니다.
+            6. 답변이 주어진 토큰 수보다 길어져 끊어지는 문제를 막아야 합니다. 그러니 간략하게 요약해서 답변하세요. 메모리 문제로 꼭 요약해야 합니다.
 
             대화기록 : {chat_history}
             검색결과 : {context}
@@ -100,16 +103,11 @@ class LoginChain(NonLoginChain):
         self.vecdb = self.vec_db
         self.retriever = retriever(self.vecdb, searched)
 
-    def get_simple_screening(self, income, job_duration, age, home_ownership):
+    @tool
+    def get_simple_screening(self, income:int, job_duration:int, age:int, home_ownership:int):
+        """주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행."""
         ml = self.ml
-        data_info = {
-            "income" : income,
-            "job_duration" : job_duration,
-            "age" : age,
-            "home_ownership" : home_ownership
-        }
-        result = ml.predict(income, job_duration, age, home_ownership)
-        return result
+        return ml.predict(income, job_duration, age, home_ownership)
     
     def get_tools(self):
         simple_screening_tools = {
@@ -156,7 +154,7 @@ class LoginChain(NonLoginChain):
                      | llm_pipe
                      | StrOutputParser())
         return rag_chain
-
+    
     def answer_to_me(self, question):
         chain = self.get_rag_chain_history()
         result = chain.invoke({"input" : question})
