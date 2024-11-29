@@ -8,7 +8,7 @@ llm_model = AutoModelForCausalLM.from_pretrained(model_id, cache_dir = './LLM', 
 llm_tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir = './TOKENIZER')
 
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'nguyen1009'
+user_id = 'nguyen321'
 dir_path = './MLOps_chatbot'
 collection = 'testdb'
 
@@ -33,4 +33,3 @@ end3 = time.time()
 time3 = end3 - start3
 print(result3)
 print(time3)
-

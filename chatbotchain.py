@@ -59,7 +59,7 @@ class NonLoginChain():
     def get_rag_chain(self):
         llm_pipeline = self._get_llm_pipeline()
         rag_context = {"chat_history" : RunnableLambda(self.memory.load_memory_variables) | itemgetter(self.memory.memory_key), "input" : RunnablePassthrough(), "retriever" : self.retriever}
-        chain = rag_context | self.prompt | llm_pipeline
+        chain = rag_context | self.prompt | llm_pipeline | StrOutputParser()
         return chain
     
     def answer_to_me(self, question):
@@ -73,7 +73,6 @@ class NonLoginChain():
         return result
 
 template = """
-            당신은 카페인, 니코틴 중독 개발자 전영욱이 만든 챗봇입니다.
             당신의 역할은 외국인 노동자 전용 P2P 대출 플랫폼인 빌리잇 사용자들을 위한 금융 챗봇입니다.
             사용자의 질문에 맞는 대답을 하세요.
             아래의 규칙을 반드시 따르세요:
