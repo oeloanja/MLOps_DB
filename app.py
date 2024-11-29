@@ -17,38 +17,41 @@ collection = 'testdb'
 k = 3
 user_id = 'nenguyen2002'
 
+
+@app.route('/borrow', methods = ['GET'])
+def get_borrow_id():
+    return getuserid.GetUserIDBorrow()
+
+@app.route('/invest', methods = ['GET'])
+def get_invest_id():
+    return getuserid.GetUserIDInvest()
+
+def get_id():
+    user_id = get_borrow_id()
+    if user_id is None:
+        user_id = get_invest_id()
+    else :
+        return None
+    return user_id
+
+
 chain_non = NonLoginChain(dir_path, collection, k, llm_model, llm_tokenizer)
 chain_login = LoginChain(llm_model, llm_tokenizer, user_id, db, dir_path, collection, k)
-
-# @app.route('/borrow', methods = ['GET'])
-# def get_borrow_id():
-#     return getuserid.GetUserIDBorrow()
-
-# @app.route('/invest', methods = ['GET'])
-# def get_invest_id():
-#     return getuserid.GetUserIDInvest()
-
-# def get_id():
-#     user_id = get_borrow_id()
-#     if user_id is None:
-#         user_id = get_invest_id()
-#     else :
-#         return None
-#     return user_id
 
 
 def chatbot_back(message):
     if user_id is None:
-        result = chain_non.answer_to_me({'input' : message})
+        result = chain_non.answer_to_me(message)
     else:
-        result = chain_login.answer_to_me({'input' : message})
+        result = chain_login.answer_to_me(message)
     return result
 
 @app.route('/chat', methods = ['POST'])
 def chat():
-    question = request.json.get('input')
+    question = request.form['input']
     response = chatbot_back(question)
-    return jsonify({'response' : response})
+    print(response)
+    return response
 
     
 

@@ -33,7 +33,7 @@ class retriever():
     @reorder
     def get_docs(self, query):
         retriever = self.get_retriever()
-        if not isinstance(query, str):  # query가 문자열인지 확인
+        if not isinstance(query, str):
             raise ValueError(f"Expected a string query, but got {type(query).__name__}")
         docs = retriever.get_relevant_documents(query)
         return docs

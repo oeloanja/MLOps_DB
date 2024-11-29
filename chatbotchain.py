@@ -10,7 +10,7 @@ from langchain.schema import HumanMessage, AIMessage
 #import getuserid
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import StrOutputParser
 from langchain.schema.runnable import RunnableMap
 from langchain.agents import initialize_agent, Tool
 from langchain_core.tools import tool
@@ -59,7 +59,7 @@ class NonLoginChain():
     def get_rag_chain(self):
         llm_pipeline = self._get_llm_pipeline()
         rag_context = {"chat_history" : RunnableLambda(self.memory.load_memory_variables) | itemgetter(self.memory.memory_key), "input" : RunnablePassthrough(), "retriever" : self.retriever}
-        chain = rag_context | self.prompt | llm_pipeline | JsonOutputParser()
+        chain = rag_context | self.prompt | llm_pipeline | StrOutputParser()
         return chain
     
     def answer_to_me(self, question):
@@ -151,7 +151,7 @@ class LoginChain(NonLoginChain):
                      "input" : itemgetter("input")}
                      | self.prompt
                      | llm_pipe
-                     | JsonOutputParser())
+                     | StrOutputParser())
         return rag_chain
     
     def answer_to_me(self, question):
