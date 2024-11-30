@@ -7,6 +7,7 @@ from langchain_ollama import ChatOllama
 
 llm_model = ChatOllama(model = 'llama3.2', temperature = 0.0)
 
+
 test_obj = Agent(llm_model)
 test_agent = test_obj.get_agent()
 
