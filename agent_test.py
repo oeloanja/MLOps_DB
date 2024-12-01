@@ -1,11 +1,23 @@
 from agent import Agent
 import time
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from chatbotchain import LoginChain
 import pickle
 from langchain_ollama import ChatOllama
+from llmchain import GetChain
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+import os
+import openai
 
-llm_model = ChatOllama(model = 'llama3.2', temperature = 0.0)
+load_dotenv()
+api = os.getenv('OPENAPI')
+os.environ['OPENAI_API_KEY'] = api
+
+llm_model = ChatOpenAI(
+    temperature=0.0,
+    max_tokens=2048,
+    model_name="gpt-4o-mini"
+)
 
 
 test_obj = Agent(llm_model)

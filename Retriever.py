@@ -5,7 +5,7 @@ from langchain_core.retrievers import BaseRetriever
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_community.document_transformers import LongContextReorder
 
-class retriever():
+class Retriever():
     def __init__(self, vec_db, searched):
         self.vec_db = vec_db
         self.searched = searched
