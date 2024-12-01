@@ -2,8 +2,8 @@ from agent import Agent
 import time
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import pickle
-from langchain_ollama import ChatOllama
-from llmchain import GetChain
+# from langchain_ollama import ChatOllama
+# from llmchain import GetChain
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import os
