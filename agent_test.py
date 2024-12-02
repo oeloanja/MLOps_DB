@@ -9,7 +9,7 @@ load_dotenv()
 api = os.getenv('OPENAPI')
 os.environ['OPENAI_API_KEY'] = api
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'negu78'
+user_id = 'negu7877'
 
 llm_model = ChatOpenAI(
     temperature=0.0,
