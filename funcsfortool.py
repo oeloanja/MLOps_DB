@@ -9,6 +9,8 @@ from sqlalchemy import create_engine
 from retriever2 import Retriever
 from langchain.tools.retriever import create_retriever_tool
 import json
+import re
+import time
 
 
 dirpath = './MLOps_chatbot'
@@ -21,8 +23,9 @@ agent_retirever = ret.as_retriever()
 ml = pickle.load(open('tool_ml.pickle', 'rb'))
 
 
-@tool()
-def get_simple_screening(a, b, c, d) -> int:
+
+@tool
+def get_simple_screening(a : int, b : int, c : float, d : int) -> int:
     """
     주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행.
     대출 심사 요청이 왔을때만 실행.
@@ -32,13 +35,15 @@ def get_simple_screening(a, b, c, d) -> int:
     - 나 대출 가능한지 봐줘.
     이런 질문들이 들어왔을 때 파라미터를 입력받은 후 이 도구를 사용합니다.
     파라미터가 다 입력된 후 도구 실행 해야합니다.
-    누락된 파라미터는 계속 요청하세요.
+    누락된 파라미터가 있을 땐 사용자에게 누락된 파라미터를 요청하는 답변을 생성하세요.
+    
     Args:
-        a:연봉
-        b:경력
-        c:총부채상환비율, dti
-        d:대출 희망 금액
+        a:연봉, type : int
+        b:경력, type : int
+        c:총부채상환비율(dti), type : float
+        d:대출 희망 금액, type : int
     """
+
     if b > 10:
         b = 10
     input_data = [[d, c, b, a]]
@@ -58,5 +63,3 @@ def retrieve():
         이런 질문에는 이 local retriever를 써 관련된 문서를 찾은 후 그 문서를 기반으로 답하세요.'''
     )
     return retriever_tool
-
-
