@@ -1,18 +1,29 @@
 from chatbotchain import LoginChain, NonLoginChain
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from langchain_openai import ChatOpenAI
 import time
+import os
+from dotenv import load_dotenv
+import funcsfortool
 
-model_id = "Bllossom/llama-3.2-Korean-Bllossom-3B"
-model_id2 = "NakJun/Llama-3.2-1B-Instruct-ko-QuAD"
-llm_model = AutoModelForCausalLM.from_pretrained(model_id, cache_dir = './LLM', do_sample = False)
-llm_tokenizer = AutoTokenizer.from_pretrained(model_id, cache_dir = './TOKENIZER')
+load_dotenv()
+api = os.getenv('OPENAPI')
+os.environ['OPENAI_API_KEY'] = api
+
+llm_model = ChatOpenAI(
+    temperature=0.0,
+    max_tokens=2048,
+    model_name="gpt-4o-mini"
+)
+tools = [funcsfortool.get_simple_screening]
+llm = llm_model.bind_tools(tools)
+
 
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'nguyen321'
+user_id = 'nguyen333'
 dir_path = './MLOps_chatbot'
 collection = 'testdb'
 
-chain_obj = LoginChain(llm_model, llm_tokenizer, user_id, db, dir_path, collection, 3)
+chain_obj = LoginChain(llm_model, user_id, db, dir_path, collection, 3)
 #test_chain = chain_obj.get_rag_chain_history()
 
 start1 = time.time()

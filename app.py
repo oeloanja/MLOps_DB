@@ -3,7 +3,6 @@ from flask import Flask, request
 from chatbotchain import NonLoginChain, LoginChain
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import getuserid
-import jsonify
 
 
 app = Flask(__name__)
@@ -46,12 +45,14 @@ def chatbot_back(message):
         result = chain_login.answer_to_me(message)
     return result
 
-@app.route('/chat', methods = ['POST'])
+@app.route('/chat/login', methods = ['POST'])
 def chat():
     question = request.form['input']
     response = chatbot_back(question)
     print(response)
     return response
+
+@app.route('/chat/non', methods = ['POST'])
 
     
 
