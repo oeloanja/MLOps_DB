@@ -63,15 +63,15 @@ time2 = end2 - start2
 print(result2['output'])
 print(time2)
 
-start3 = time.time()
-result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')
-end3 = time.time()
-time3 = end3 - start3
-print(result3['output'])
-print(time3)
+# start3 = time.time()
+# result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')
+# end3 = time.time()
+# time3 = end3 - start3
+# print(result3['output'])
+# print(time3)
 
 start4 = time.time()
-result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000.0이야.')
+result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000.0이야. 경력은 5년이고, dti는 4.5, 대출 희망 금액은 8000이야.')
 end4 = time.time()
 time4 = end4 - start4
 print(result4['output'])

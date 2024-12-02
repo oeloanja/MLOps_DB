@@ -22,7 +22,7 @@ ml = pickle.load(open('tool_ml.pickle', 'rb'))
 
 
 @tool()
-def get_simple_screening(a, b:int, c:float, d:float) -> int:
+def get_simple_screening(a, b, c, d) -> int:
     """
     주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행.
     대출 심사 요청이 왔을때만 실행.
