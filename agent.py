@@ -63,21 +63,6 @@ class LoginAgent():
         )
         self.agent = self.get_agent()
         self.agent_hist = self.agent_history()
-        
-
-    def get_tools(self):
-        tools = [
-            Tool(
-                name = 'simple_screening',
-                func = funcsfortool.get_simple_screening,
-                description = funcsfortool.get_simple_screening.description
-            ),
-            Tool(
-                name = funcsfortool.retrieve().name,
-                func = funcsfortool.retrieve().func,
-                description = funcsfortool.retrieve().description)
-        ]
-        return tools
     
     def get_agent(self):
         using_tools = self.tools
