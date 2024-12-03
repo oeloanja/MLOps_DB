@@ -9,7 +9,7 @@ load_dotenv()
 api = os.getenv('OPENAPI')
 os.environ['OPENAI_API_KEY'] = api
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'neguyen88771'
+user_id = 'sawadikapp77147'
 
 llm_model = ChatOpenAI(
     temperature=0.0,
@@ -71,7 +71,7 @@ print(time2)
 # print(time3)
 
 start4 = time.time()
-result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 경력은 5년이고, dti는 4.5, 대출 희망 금액은 8000이야.')
+result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 경력은 5년이고, dti는 0.32야. 난 5000을 대출받고 싶어')
 end4 = time.time()
 time4 = end4 - start4
 print(result4['output'])

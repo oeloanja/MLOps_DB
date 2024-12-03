@@ -1,5 +1,4 @@
 import VectorStore
-from Retriever import retriever
 import DocLoader
 
 docs = DocLoader.docload('C:/Users/user/Downloads/가계대출상품설명서.pdf')

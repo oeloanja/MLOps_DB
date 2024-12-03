@@ -1,4 +1,5 @@
 import funcsfortool
+from funcsfortool import SimpleScreening, retrieve
 from langchain.agents import AgentExecutor, create_react_agent, Tool, create_structured_chat_agent
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.tools.render import render_text_description
@@ -8,8 +9,8 @@ from langchain_core.runnables.utils import ConfigurableFieldSpec
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-
-
+simple = SimpleScreening()
+retriever_tool = retrieve()
 template = """
 Important를 지키면서 다음 질문에 답변하세요. 다음 도구들을 사용할 수 있습니다:
 
@@ -30,12 +31,11 @@ Final Answer: 원래 입력 질문에 대한 최종 답변
 
 Important :
 - '그 둘의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.', '그거 다시 설명해줘.'등의 질문에는 반드시 History를 기반으로 답하세요.
+- simple_screening의 Action Input은 simple_screening.args와 simple_screening.description에 맞게 값을 찾아서 채워 넣으세요.
 - 'simple_screening'에 누락된 파라미터가 있을 경우 다시 요청하세요. 반드시 다시 요청해야 합니다. 다 채워질 때 까지 계속 요청하세요.
 - 주어진 질문에 대한 대답만 하세요. 더 추가적인 정보를 생성하지 마세요.
 - 질문 언어와 같은 언어로 답변하세요. 만약 질문이 베트남어이면 베트남어로 답하면 됩니다. 질문이 한국어면 한국어로 답하세요.
 - 질문에 대한 정확한 답을 생성하려고 3번 이상 반복하지 마세요.
-- 만약 simple_screening에서 누락된 파라미터가 있을 경우 누락된 파라미터 입력을 요청하는 답변을 생성하세요. 계속 반복하지 마세요.
-- simple_screening에서 input은 숫자만 넣으세요.
 - Action을 뭘 할지 모르겠다면 local_retriever를 쓰세요.
 
 
@@ -55,7 +55,18 @@ class LoginAgent():
         self.engine = create_engine(db_path)
         self.user_id = user_id
         self.session_id = self.get_conversation_id()
-        self.tools = [
+        self.tools = [simple, retriever_tool]
+        self.memory = SQLChatMessageHistory(
+            table_name = self.user_id,
+            session_id = self.session_id,
+            connection = self.engine
+        )
+        self.agent = self.get_agent()
+        self.agent_hist = self.agent_history()
+        
+
+    def get_tools(self):
+        tools = [
             Tool(
                 name = 'simple_screening',
                 func = funcsfortool.get_simple_screening,
@@ -66,28 +77,7 @@ class LoginAgent():
                 func = funcsfortool.retrieve().func,
                 description = funcsfortool.retrieve().description)
         ]
-        self.memory = SQLChatMessageHistory(
-            table_name = self.user_id,
-            session_id = self.session_id,
-            connection = self.engine
-        )
-        self.agent = self.get_agent()
-        self.agent_hist = self.agent_history()
-        
-
-    # def get_tools(self):
-    #     tools = [
-    #         Tool(
-    #             name = 'simple_screening',
-    #             func = funcsfortool.get_simple_screening,
-    #             description = funcsfortool.get_simple_screening.description
-    #         ),
-    #         Tool(
-    #             name = funcsfortool.retrieve().name,
-    #             func = funcsfortool.retrieve().func,
-    #             description = funcsfortool.retrieve().description)
-    #     ]
-    #     return tools
+        return tools
     
     def get_agent(self):
         using_tools = self.tools
@@ -129,7 +119,8 @@ class LoginAgent():
     def answer_to_me(self, query):
         agent = self.agent_hist
         memory = self.memory
-        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
+        print(f"Query being passed to the agent: {query}")
+        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})        
         memory.add_user_message(query)
         memory.add_ai_message(result['output'])
         return result
@@ -160,7 +151,6 @@ Important :
 
 
 Question: {input}
-History: {chat_history}
 Thought: {agent_scratchpad}
 """
 
@@ -179,7 +169,7 @@ class NonLoginAgent(LoginAgent):
     
     def answer_to_me(self, query):
         agent = self.agent
-        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
+        result = agent.invoke({'input' : query})
         return result
     
     
