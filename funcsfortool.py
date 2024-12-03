@@ -24,10 +24,11 @@ agent_retirever = ret.as_retriever()
 ml = pickle.load(open('tool_ml.pickle', 'rb'))
 
 class ScreeningInput(BaseModel):
-    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
-    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
-    dti:float = Field(..., description = "사용자가 입력한 질문에 있는 부채상환비율(dti)")
-    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
+   annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
+   career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
+   dti:float = Field(..., description = "사용자가 입력한 질문에 있는 부채상환비율(dti)")
+   loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
+#    kwargs:dict = Field(..., description="simple_screening에 필요한 딕셔너리 형식의 파라미터입니다.")
 
 # def get_simple_screening(a : int, b : int, c : float, d : int) -> int:
 #     print(f"Called with a={a}, b={b}, c={c}, d={d}")

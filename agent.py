@@ -105,7 +105,8 @@ class LoginAgent():
         agent = self.agent_hist
         memory = self.memory
         print(f"Query being passed to the agent: {query}")
-        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})        
+        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
+        print("result :", result)
         memory.add_user_message(query)
         memory.add_ai_message(result['output'])
         return result
