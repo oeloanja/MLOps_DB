@@ -19,24 +19,26 @@ llm_model = ChatOpenAI(
     model_name="gpt-4o-mini"
 )
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'nenguyen2002'
 
 
-# @app.route('/borrow', methods = ['GET'])
-# def get_borrow_id():
-#     return getuserid.GetUserIDBorrow()
 
-# @app.route('/invest', methods = ['GET'])
-# def get_invest_id():
-#     return getuserid.GetUserIDInvest()
+@app.route('/borrow', methods = ['GET'])
+def get_borrow_id():
+    return getuserid.GetUserIDBorrow()
 
-# def get_id():
-#     user_id = get_borrow_id()
-#     if user_id is None:
-#         user_id = get_invest_id()
-#     else :
-#         return None
-#     return user_id
+@app.route('/invest', methods = ['GET'])
+def get_invest_id():
+    return getuserid.GetUserIDInvest()
+
+def get_id():
+    user_id = get_borrow_id()
+    if user_id is None:
+        user_id = get_invest_id()
+        if user_id is None:
+            return None
+    return user_id
+
+user_id = get_id()
 
 
 login = LoginAgent(llm_model, db_path = db, user_id = user_id)
