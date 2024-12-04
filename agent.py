@@ -1,7 +1,7 @@
 import funcsfortool
 from funcsfortool import SimpleScreening, retrieve
-from langchain.agents import AgentExecutor, create_react_agent, Tool, create_structured_chat_agent
-from langchain_core.prompts import ChatPromptTemplate
+from langchain.agents import AgentExecutor, create_react_agent, Tool, create_openai_functions_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
@@ -11,43 +11,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 
 simple = SimpleScreening()
 retriever_tool = retrieve()
+
 template = """
-Important를 지키면서 다음 질문에 답변하세요. 다음 도구들을 사용할 수 있습니다:
-
-{tools}
-
-다음 형식을 사용하세요:
-
-Question: 답변해야 할 입력 질문
-History: 저장된 대화 내역을 참고하세요.:
-{chat_history}
-Thought: 무엇을 해야 할지 항상 생각하세요
-Action: 취할 행동을 선택하세요. [{tool_names}] 중 하나를 꼭 선택해야 합니다.
-Action Input: 행동에 필요한 입력값
-Observation: 행동의 결과
-... (이 생각/행동/행동 입력/관찰 과정을 N번 반복할 수 있음)
-Thought: 필요한 정보를 얻었으므로 최종 답변을 생성하겠습니다
-Final Answer: 원래 입력 질문에 대한 최종 답변
-
-Important :
-- '그 둘의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.', '그거 다시 설명해줘.'등의 질문에는 반드시 History를 기반으로 답하세요.
-- simple_screening의 Action Input은 simple_screening.args와 simple_screening.description에 맞게 값을 찾아서 채워 넣으세요.
-- 'simple_screening'에 누락된 파라미터가 있을 경우 다시 요청하세요. 반드시 다시 요청해야 합니다. 다 채워질 때 까지 계속 요청하세요.
-- 주어진 질문에 대한 대답만 하세요. 더 추가적인 정보를 생성하지 마세요.
-- 질문 언어와 같은 언어로 답변하세요. 만약 질문이 베트남어이면 베트남어로 답하면 됩니다. 질문이 한국어면 한국어로 답하세요.
-- 질문에 대한 정확한 답을 생성하려고 3번 이상 반복하지 마세요.
-- Action을 뭘 할지 모르겠다면 local_retriever를 쓰세요.
-
-
-시작하세요!
-
-
-Question: {input}
-History: {chat_history}
-Thought: {agent_scratchpad}
-"""
-
-template3 = """
         당신은 외국인 노동자들을 위한 P2P서비스 빌리잇(Billit)의 ㅈㄴ똑똑한 챗봇 상담사입니다.
         당신은 다음의 도구들을 사용할 수 있습니다.:
         {tools}
@@ -67,9 +32,15 @@ template3 = """
 class LoginAgent():
     def __init__(self, llm, db_path, user_id):
         self.model = llm
-        self.prompt = ChatPromptTemplate.from_template(template)
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", template),
+            MessagesPlaceholder("chat_history", optional = True),
+            ("human", "{input}"),
+            MessagesPlaceholder("agent_scratchpad")
+        ])
         self.local_retriever = funcsfortool.retrieve()
-        self.engine = create_engine(db_path)
+        self.db_path = db_path
+        self.engine = create_engine(self.db_path)
         self.user_id = user_id
         self.session_id = self.get_conversation_id()
         self.tools = [simple, retriever_tool]
@@ -82,12 +53,10 @@ class LoginAgent():
         self.agent_hist = self.agent_history()
     
     def get_agent(self):
-        using_tools = self.tools
-        prompt = self.prompt
-        tool_names = ", ".join([t.name for t in using_tools])
-        prompt_fin = prompt.partial(tools=render_text_description(using_tools), tool_names=tool_names)
-        agent_t = create_react_agent(llm = self.model, tools = using_tools, prompt = prompt_fin)
-        agent_aex = AgentExecutor(agent = agent_t, tools = using_tools, handle_parsing_errors=True, max_iterations = 15, verbose=True)
+        tool_names = ", ".join([t.name for t in self.tools])
+        prompt_fin = self.prompt.partial(tools=render_text_description(self.tools), tool_names=tool_names)
+        agent_t = create_openai_functions_agent(llm = self.model, tools = self.tools, prompt = prompt_fin)
+        agent_aex = AgentExecutor(agent = agent_t, tools = self.tools, handle_parsing_errors=True, max_iterations = 15, verbose=False)
         return agent_aex
     
     def get_conversation_id(self):
@@ -121,7 +90,6 @@ class LoginAgent():
     def answer_to_me(self, query):
         agent = self.agent_hist
         memory = self.memory
-        print(f"Query being passed to the agent: {query}")
         result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
         print("result :", result)
         memory.add_user_message(query)
@@ -129,50 +97,43 @@ class LoginAgent():
         return result
 
 template2 = """
-Important를 지키면서 다음 질문에 답변하세요. 다음 도구들을 사용할 수 있습니다:
-
-{tools}
-
-다음 형식을 사용하세요:
-
-Question: 답변해야 할 입력 질문
-Thought: 무엇을 해야 할지 항상 생각하세요
-Action: 취할 행동을 선택하세요. [{tool_names}] 중 하나를 꼭 선택해야 합니다.
-Action Input: 행동에 필요한 입력값
-Observation: 행동의 결과
-... (이 생각/행동/행동 입력/관찰 과정을 N번 반복할 수 있음)
-Thought: 필요한 정보를 얻었으므로 최종 답변을 생성하겠습니다
-Final Answer: 원래 입력 질문에 대한 최종 답변
-
-Important :
-- 주어진 질문에 대한 대답만 하세요. 더 추가적인 정보를 생성하지 마세요.
-- 질문 언어와 같은 언어로 답변하세요. 만약 질문이 베트남어이면 베트남어로 답하면 됩니다. 질문이 한국어면 한국어로 답하세요.
-- 질문에 대한 정확한 답을 생성하려고 3번 이상 반복하지 마세요.
-
-
-시작하세요!
-
-
-Question: {input}
-Thought: {agent_scratchpad}
+        당신은 외국인 노동자들을 위한 P2P서비스 빌리잇(Billit)의 ㅈㄴ똑똑한 챗봇 상담사입니다.
+        당신은 다음의 도구들을 사용할 수 있습니다.:
+        {tools}
+        도구의 이름은 {tool_names}입니다.
+        History: 저장된 대화내역 입니다. 당신은 이걸 기반으로 대답할 수 있습니다. 자세한 예시는 rule에 있습니다.:{chat_history}
+        다음의 rule을 무조건 지키면서 사용자의 질문에 대답하세요.
+        rule:
+        - Question이 들어오면 [{tool_names}]중 하나의 툴을 선택해 사용하세요
+        - 다만 '그것들의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.'와 같은 상황에선 History만 쓰세요.
+        - 질의응답 유형의 Question이 들어오면 local_retriever를 쓰세요.
+            - 예시: '자료열람요구권이 뭐야?', '대출 어떻게 받아?', '투자는 어떻게 해?'와 같은 상황에선 local_retriever를 쓰세요.
+        - Question의 언어에 맞게 답하세요. 만약 Question이 베트남어면 베트남어로 답하세요. Question이 한국어면 한국어로 답하세요. Question의 언어를 모르면 영어로 답하세요.
+        - 대답은 짧고 간단하게 해야합니다.
+        - 말 끝에 회원가입을 유도하는 말을 덧붙이세요.
+            - 예시 : '자세한 사항을 알고 싶으시면 회원가입을 진행해 주세요.'
 """
 
-class NonLoginAgent(LoginAgent):
+class NonLoginAgent():
     def __init__(self, llm):
-        super().__init__()
         self.llm = llm
-        self.tools =  [
-            Tool(
-                name = funcsfortool.retrieve().name,
-                func = funcsfortool.retrieve().func,
-                description = funcsfortool.retrieve().description)
-        ]
-        self.prompt = ChatPromptTemplate.from_template(template2)
-        self.agent = self.get_agent()
+        self.tools =  [retriever_tool]
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system", template2),
+            MessagesPlaceholder("chat_history", optional = True),
+            ("human", "{input}"),
+            MessagesPlaceholder("agent_scratchpad")
+        ])
+        self.agent = self._get_agent()
+    
+    def _get_agent(self):
+        tool_names = ", ".join([t.name for t in self.tools])
+        prompt_fin = self.prompt.partial(tools=render_text_description(self.tools), tool_names=tool_names)
+        agent_t = create_openai_functions_agent(llm = self.llm, tools = self.tools, prompt = prompt_fin)
+        agent_aex = AgentExecutor(agent = agent_t, tools = self.tools, handle_parsing_errors=True, max_iterations = 15, verbose=False)
+        return agent_aex
     
     def answer_to_me(self, query):
         agent = self.agent
         result = agent.invoke({'input' : query})
         return result
-    
-    

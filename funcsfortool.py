@@ -5,11 +5,12 @@ from pydantic import BaseModel, Field
 import VectorStore
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
-from retriever2 import Retriever
+from retriever import Retriever
 from langchain.tools.retriever import create_retriever_tool
 from typing import Optional, Type
 from langchain.callbacks.manager import CallbackManagerForToolRun
 import pandas as pd
+import numpy as np
 
 
 
@@ -28,41 +29,6 @@ class ScreeningInput(BaseModel):
    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
    dti:float = Field(..., description = "사용자가 입력한 질문에 있는 부채상환비율(dti)")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
-#    kwargs:dict = Field(..., description="simple_screening에 필요한 딕셔너리 형식의 파라미터입니다.")
-
-# def get_simple_screening(a : int, b : int, c : float, d : int) -> int:
-#     print(f"Called with a={a}, b={b}, c={c}, d={d}")
-#     if b > 10:
-#         b = 10
-#     input_data = [[d, c, b, a]]
-#     prediction = ml.predict(input_data)
-#     return prediction
-
-# def get_screening_tool():
-#     screening = StructuredTool.from_function(
-#     func = get_simple_screening,
-#     name = 'simple_screening',
-#     description = """
-#     주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행.
-#     대출 심사 요청이 왔을때만 실행.
-#     예시
-#     - 나 대출 가능해?
-#     - 나 연봉 5000인데 대출 가능해?
-#     - 나 대출 가능한지 봐줘.
-#     이런 질문들이 들어왔을 때 파라미터를 입력받은 후 이 도구를 사용합니다.
-#     누락된 파라미터가 있을 땐 체인 종료 후 사용자에게 누락된 파라미터를 요청하세요.
-#     TypeError시 사용자에게 다시 입력 받으세요.
-    
-#     Args:
-#         a:연봉, type : int
-#         b:경력, type : int
-#         c:총부채상환비율(dti), type : float
-#         d:대출 희망 금액, type : int
-#     """,
-#     args_schema=ScreeningInput,
-#     return_direct=True
-#     )
-#     return screening
 
 class SimpleScreening(BaseTool):
     name = 'simple_screening'
@@ -82,7 +48,16 @@ class SimpleScreening(BaseTool):
             career_years = 10
         input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'job_duration' : career_years, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
-        return prediction
+        screening_result = ''
+        if prediction[0] == 0:
+            screening_result = '대출이 가능합니다.'
+        elif prediction[0] == 1:
+            screening_result = '대출이 가능하지만 금리가 조금 더 높을 수 있어요.'
+        elif prediction[0] == 2:
+            screening_result = '대출이 되더라도 금리가 많이 높아요.'
+        else:
+            screening_result = '대출 안돼. 안바꿔줘. 돌아가.'
+        return screening_result
 
 def retrieve():
     retriever_tool = create_retriever_tool(
