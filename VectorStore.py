@@ -1,8 +1,14 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
+import os
+from langchain_openai import OpenAIEmbeddings
 
-embedding_model = HuggingFaceEmbeddings(model_name = 'BAAI/bge-m3', model_kwargs = {'device' : 'cpu'}, encode_kwargs={'normalize_embeddings':True},)
+load_dotenv()
+api = os.getenv('OPENAPI')
+os.environ['OPENAI_API_KEY'] = api
+embedding_model = OpenAIEmbeddings(model = "text-embedding-3-small")
 
 
 
