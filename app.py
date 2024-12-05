@@ -1,6 +1,5 @@
 from fastapi import FastAPI, APIRouter
 from flask import Flask, request, session, g, Blueprint
-import getuserid
 from langchain_openai import ChatOpenAI
 from agent import LoginAgent, NonLoginAgent
 from dotenv import load_dotenv
@@ -36,7 +35,7 @@ login = LoginAgent(llm_model, db_path = db, user_id = user_id)
 non = NonLoginAgent(llm_model)
 
 
-@bp.route('/login', methods = ['POST'])
+@app.route('/chat/login', methods = ['POST'])
 def chat():
     question = request.form['input']
     response = login.answer_to_me(question)
