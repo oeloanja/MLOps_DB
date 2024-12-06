@@ -21,7 +21,7 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 
-@app.route('/')
+@app.route('/chat')
 def get_id():
     if "userID" in session:
         user_id = session["userID"]
