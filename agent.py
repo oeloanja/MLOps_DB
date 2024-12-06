@@ -109,7 +109,7 @@ class LoginAgent(NonLoginAgent):
     
     def load_memory(self):
         return SQLChatMessageHistory(
-            table_name = self.user_id,
+            table_name = 'history',
             session_id = self._get_conversation_id(),
             connection = self.engine
         )

@@ -9,7 +9,7 @@ load_dotenv()
 api = os.getenv('OPENAPI')
 os.environ['OPENAI_API_KEY'] = api
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
-user_id = 'sawadikap2974671'
+user_id = 'nenguyen'
 
 llm_model = ChatOpenAI(
     temperature=0.0,
@@ -56,19 +56,19 @@ print(result1)
 print(type(result1))
 print(time1)
 
-# start2 = time.time()
-# result2 = test_obj.answer_to_me('자료열람요구권이 뭐야?')['output']
-# end2 = time.time()
-# time2 = end2 - start2
-# print(result2)
-# print(time2)
+start2 = time.time()
+result2 = test_obj.answer_to_me('자료열람요구권이 뭐야?')['output']
+end2 = time.time()
+time2 = end2 - start2
+print(result2)
+print(time2)
 
-# start3 = time.time()
-# result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')['output']
-# end3 = time.time()
-# time3 = end3 - start3
-# print(result3)
-# print(time3)
+start3 = time.time()
+result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')['output']
+end3 = time.time()
+time3 = end3 - start3
+print(result3)
+print(time3)
 
 start4 = time.time()
 result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야.')
