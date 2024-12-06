@@ -1,11 +1,10 @@
 import funcsfortool
 from funcsfortool import SimpleScreening, retrieve
-from langchain.agents import AgentExecutor, create_react_agent, Tool, create_openai_functions_agent
+from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
 from langchain_community.chat_message_histories import SQLChatMessageHistory
 from sqlalchemy import create_engine
-from langchain_core.runnables.utils import ConfigurableFieldSpec
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 

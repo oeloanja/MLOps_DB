@@ -21,31 +21,34 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 
-@app.route('/chat')
+@app.route('/chat', methods = ['POST'])
 def get_id():
-    if "userID" in session:
-        user_id = session["userID"]
-    else:
-        user_id = None
-    return user_id
+    response = request.form['email']
+    return response
+    
 
 user_id = get_id()
 
-login = LoginAgent(llm_model, db_path = db, user_id = user_id)
-non = NonLoginAgent(llm_model)
+try:
+    chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
+except TypeError:
+    chatbot = NonLoginAgent(llm_model)
+
+# login = LoginAgent(llm_model, db_path = db, user_id = user_id)
+# non = NonLoginAgent(llm_model)
 
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
     question = request.form['input']
-    response = login.answer_to_me(question)
+    response = chatbot.answer_to_me(question)
     print(response['output'])
     return response['output']
 
 @app.route('/chat/non', methods = ['POST'])
 def chat_non():
     question = request.form['input']
-    response = non.answer_to_me(question)
+    response = chatbot.answer_to_me(question)
     print(response['output'])
     return response['output']
     
