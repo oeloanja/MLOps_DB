@@ -1,16 +1,12 @@
-from langchain_core.tools import tool, StructuredTool, BaseTool
+from langchain_core.tools import BaseTool
 import pickle
-from langchain.tools import StructuredTool
 from pydantic import BaseModel, Field
 import VectorStore
-from langchain_community.chat_message_histories import SQLChatMessageHistory
-from sqlalchemy import create_engine
 from retriever import Retriever
 from langchain.tools.retriever import create_retriever_tool
 from typing import Optional, Type
 from langchain.callbacks.manager import CallbackManagerForToolRun
 import pandas as pd
-import numpy as np
 
 
 
