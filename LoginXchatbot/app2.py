@@ -25,3 +25,6 @@ def chat_non():
     response = chatbot.answer_to_me(question)
     print(response['output'])
     return response['output']
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port = 8000)

@@ -1,5 +1,5 @@
 import funcsfortool
-from funcsfortool import SimpleScreening, retrieve
+from funcsfortool import retrieve
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-simple = SimpleScreening()
 retriever_tool = retrieve()
 
 
