@@ -20,7 +20,7 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 
-@app.before_request
+@app.before_first_request
 def get_id():
     response = request.form.get('uuid')
     return response
