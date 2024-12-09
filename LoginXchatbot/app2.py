@@ -1,7 +1,7 @@
 from fastapi import FastAPI, APIRouter
 from flask import Flask, request, session, g, Blueprint
 from langchain_openai import ChatOpenAI
-from agent import LoginAgent, NonLoginAgent
+from agent import NonLoginAgent
 from dotenv import load_dotenv
 import os
 
