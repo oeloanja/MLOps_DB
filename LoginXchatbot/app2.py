@@ -5,7 +5,6 @@ from agent import LoginAgent, NonLoginAgent
 from dotenv import load_dotenv
 import os
 
-
 app = Flask(__name__)
 
 load_dotenv()
@@ -17,27 +16,12 @@ llm_model = ChatOpenAI(
     max_tokens=2048,
     model_name="gpt-4o-mini"
 )
-db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
+chatbot = NonLoginAgent(llm_model)
 
-@app.route('/chat', methods = ['POST'])
-def get_id():
-    response = request.form.get('uuid')
-    return response
-    
-
-user_id = get_id()
-
-chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
-
-
-@app.route('/chat/login', methods = ['POST'])
-def chat():
+@app.route('/chat/non', methods = ['POST'])
+def chat_non():
     question = request.form['input']
     response = chatbot.answer_to_me(question)
     print(response['output'])
     return response['output']
-
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port = 8000)
