@@ -1,5 +1,4 @@
-from fastapi import FastAPI, APIRouter
-from flask import Flask, request, session, g, Blueprint
+from flask import Flask, request
 from langchain_openai import ChatOpenAI
 from agent import LoginAgent, NonLoginAgent
 from dotenv import load_dotenv
@@ -20,7 +19,7 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 
-@app.route('/chat', methods = ['POST'])
+@app.after_request
 def get_id():
     response = request.form.get('uuid')
     return response
