@@ -1,0 +1,13 @@
+FROM python:3.11-bookworm
+
+WORKDIR /dapp2
+
+COPY requirements.txt /dapp2
+
+RUN pip install -r requirements.txt
+
+COPY . /dapp2
+
+EXPOSE 8000
+
+CMD ["python", "app2.py"]
