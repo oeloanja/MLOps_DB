@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from agent import LoginAgent, NonLoginAgent
 from dotenv import load_dotenv
 import os
+import requests
 
 
 app = Flask(__name__)
@@ -19,7 +20,7 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 
-@app.after_request
+@app.before_request
 def get_id():
     response = request.form.get('uuid')
     return response
