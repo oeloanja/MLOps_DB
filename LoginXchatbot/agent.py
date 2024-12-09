@@ -1,5 +1,5 @@
 import funcsfortool
-from funcsfortool import SimpleScreening, retrieve
+from funcsfortool import retrieve
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
@@ -8,7 +8,6 @@ from sqlalchemy import create_engine
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-simple = SimpleScreening()
 retriever_tool = retrieve()
 
 
@@ -72,63 +71,3 @@ template = """
             - 예시: '나 대출 가능해?', '나 연봉이 4000인데 대출 가능해?', '나 대출 가능한지 봐줘.'와 같은 상황에서 simple_screening을 쓰세요.
         - Question의 언어에 맞게 답하세요. 만약 Question이 베트남어면 베트남어로 답하세요. Question이 한국어면 한국어로 답하세요. Question의 언어를 모르면 영어로 답하세요.
 """
-
-class LoginAgent(NonLoginAgent):
-    def __init__(self, llm, db_path, user_id):
-        super().__init__(llm)
-        self.model = llm
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", template),
-            MessagesPlaceholder("chat_history", optional = True),
-            ("human", "{input}"),
-            MessagesPlaceholder("agent_scratchpad")
-        ])
-        self.db_path = db_path
-        self.engine = create_engine(self.db_path)
-        self.user_id = user_id
-        self.session_id = self._get_conversation_id()
-        self.tools = [simple, retriever_tool]
-        self.memory = SQLChatMessageHistory(
-            table_name = self.user_id,
-            session_id = self.session_id,
-            connection = self.engine
-        )
-        self.agent = self._get_agent()
-        self.agent_hist = self._agent_history()
-    
-    def _get_conversation_id(self):
-        user_id = self.user_id
-        now = time
-        time1 = str(now.localtime().tm_year)
-        time2 = str(now.localtime().tm_mon)
-        time3 = str(now.localtime().tm_mday)
-        conversation_id = user_id + time1 + time2 + time3
-        return conversation_id
-
-    
-    def load_memory(self):
-        return SQLChatMessageHistory(
-            table_name = 'history',
-            session_id = self._get_conversation_id(),
-            connection = self.engine
-        )
-    
-
-    def _agent_history(self):
-        agent = self.agent
-        history_agent = RunnableWithMessageHistory(
-            agent,
-            self.load_memory,
-            input_messages_key = 'input',
-            history_messages_key = 'chat_history'
-        )
-        return history_agent
-    
-    def answer_to_me(self, query):
-        agent = self.agent_hist
-        memory = self.memory
-        result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
-        print("result :", result)
-        memory.add_user_message(query)
-        memory.add_ai_message(result['output'])
-        return result
