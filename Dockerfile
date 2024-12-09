@@ -1,4 +1,4 @@
-FROM python:3.11-bullseye
+FROM python:3.11-bookworm
 
 WORKDIR /dapp
 
@@ -10,4 +10,4 @@ COPY . /dapp
 
 EXPOSE 8000
 
-CMD ['python:3.11.7', 'app.py']
+CMD ["python", "app.py"]
