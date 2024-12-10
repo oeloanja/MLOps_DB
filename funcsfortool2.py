@@ -37,6 +37,7 @@ class SimpleScreening(BaseTool):
     - 나 대출 가능한지 봐줘.
     이런 질문들이 들어왔을 때 파라미터를 입력받은 후 이 도구를 사용합니다.
     누락된 파라미터가 있을 땐 체인 종료 후 사용자에게 누락된 파라미터를 요청하세요.
+    user_id는 self.user_id입니다. self.user_id를 받으면 됩니다.
     TypeError시 사용자에게 다시 입력 받으세요.
     """
     args_schema : Type[BaseModel] = ScreeningInput

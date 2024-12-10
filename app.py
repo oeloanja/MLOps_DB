@@ -19,11 +19,15 @@ llm_model = ChatOpenAI(
 )
 db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
+first_flag = False
 
-@app.before_first_request
+@app.before_request
 def get_id():
-    data = request.get_json()
-    response = data['uuid']
+    global first_flag
+    if not first_flag:
+        data = request.get_json()
+        response = data['uuid']
+        first_flag = True
     return response
     
 
