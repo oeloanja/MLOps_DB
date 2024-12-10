@@ -25,7 +25,7 @@ class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
-   user_id:str = Field(description = 'dti 계산을 위한 데이터를 불러오는 키. 툴을 사용할 땐 챗봇이 알아서 전달 해줘야하는 파라미터.')
+   user_id:str = Field(description = 'dti 계산을 위한 데이터를 불러오는 키. 툴을 사용할 때 사용중인 유저의 user_id를 자동으로 입력해야 합니다.')
 
 class SimpleScreening(BaseTool):
     name = 'simple_screening'
