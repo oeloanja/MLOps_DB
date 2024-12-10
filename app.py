@@ -39,8 +39,8 @@ def chat():
     q_json = request.get_json()
     question = q_json['input']
     response = chatbot.answer_to_me(question)
-    print(response['output'])
-    return response['output']
+    out_json = {"output" : response['output']}
+    return out_json
 
 
 if __name__ == "__main__":
