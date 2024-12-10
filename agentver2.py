@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-simple = SimpleScreening()
+
 retriever_tool = retrieve()
 
 
@@ -70,7 +70,7 @@ template = """
             - 예시: '자료열람요구권이 뭐야?', '대출 어떻게 받아?', '투자는 어떻게 해?'와 같은 상황에선 local_retriever를 쓰세요.
         - 대출심사 유형의 Question이 들어오면 simple_screening을 쓰세요.
             - 예시: '나 대출 가능해?', '나 연봉이 4000인데 대출 가능해?', '나 대출 가능한지 봐줘.'와 같은 상황에서 simple_screening을 쓰세요.
-        - 대출심사 유형의 경우엔 self.user_id를 simple_screening의 user_id에 보내줘야 합니다.
+        - 대출심사할 때 self.user_id를 simple_screening의 user_id에 보내줘야 합니다.
         - Question의 언어에 맞게 답하세요. 만약 Question이 베트남어면 베트남어로 답하세요. Question이 한국어면 한국어로 답하세요. Question의 언어를 모르면 영어로 답하세요.
 """
 
@@ -88,7 +88,8 @@ class LoginAgent(NonLoginAgent):
         self.engine = create_engine(self.db_path)
         self.user_id = user_id
         self.session_id = self._get_conversation_id()
-        self.tools = [simple, retriever_tool]
+        self.simple = SimpleScreening(self.user_id)
+        self.tools = [self.simple, retriever_tool]
         self.memory = SQLChatMessageHistory(
             table_name = self.user_id,
             session_id = self.session_id,
