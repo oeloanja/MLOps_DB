@@ -31,8 +31,7 @@ def get_id():
     return response
     
 
-user_id = get_id()
-chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
+chatbot = LoginAgent(llm_model, db_path = db, user_id = get_id())
 
 
 @app.route('/chat/login', methods = ['POST'])
