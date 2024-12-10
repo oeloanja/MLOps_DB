@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-
+simple = SimpleScreening()
 retriever_tool = retrieve()
 
 
@@ -88,8 +88,7 @@ class LoginAgent(NonLoginAgent):
         self.engine = create_engine(self.db_path)
         self.user_id = user_id
         self.session_id = self._get_conversation_id()
-        self.simple = SimpleScreening(self.user_id)
-        self.tools = [self.simple, retriever_tool]
+        self.tools = [simple, retriever_tool]
         self.memory = SQLChatMessageHistory(
             table_name = self.user_id,
             session_id = self.session_id,
