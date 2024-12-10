@@ -21,9 +21,11 @@ chatbot = NonLoginAgent(llm_model)
 
 @app.route('/chat/non', methods = ['POST'])
 def chat_non():
-    question = request.form['input']
+    q_json = request.get_json()
+    question = q_json['input']
     response = chatbot.answer_to_me(question)
-    return response['output']
+    out_json = {"output" : response['output']}
+    return out_json
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port = 8000)
