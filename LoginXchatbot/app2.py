@@ -23,7 +23,6 @@ chatbot = NonLoginAgent(llm_model)
 def chat_non():
     question = request.form['input']
     response = chatbot.answer_to_me(question)
-    print(response['output'])
     return response['output']
 
 if __name__ == "__main__":
