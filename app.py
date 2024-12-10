@@ -30,7 +30,7 @@ def get_id():
         response = data['uuid']
         first_flag = True
         chatbot = LoginAgent(llm_model, db_path = db, user_id = response)
-    return chatbot
+    return {"status" : "success"}, 200
     
 
 
