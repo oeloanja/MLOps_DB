@@ -17,7 +17,7 @@ llm_model = ChatOpenAI(
     max_tokens=2048,
     model_name="gpt-4o-mini"
 )
-db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
+db = "mysql+pymysql://root:1234@mysqlchatbot/chat_history"
 
 first_flag = False
 
