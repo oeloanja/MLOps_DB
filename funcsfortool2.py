@@ -25,9 +25,10 @@ class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
-   user_id:str = Field(description = 'dti 계산을 위한 데이터를 불러오는 키')
 
 class SimpleScreening(BaseTool):
+    def __init__(self, user_id):
+        self.user_id = user_id
     name = 'simple_screening'
     description = """
     주어진 머신러닝 모델을 이용해 간단한 대출심사를 진행.
@@ -41,10 +42,10 @@ class SimpleScreening(BaseTool):
     TypeError시 사용자에게 다시 입력 받으세요.
     """
     args_schema : Type[BaseModel] = ScreeningInput
-    def _run(self, annual_income:int, career_years:int, loan_amount:int, user_id:str, run_manager: Optional[CallbackManagerForToolRun] = None):
+    def _run(self, annual_income:int, career_years:int, loan_amount:int, run_manager: Optional[CallbackManagerForToolRun] = None):
         if career_years > 10:
             career_years = 10
-        dti = getdti.calculate_dti(user_id, annual_income)
+        dti = getdti.calculate_dti(self.user_id, annual_income)
         input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'job_duration' : career_years, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
         screening_result = ''
