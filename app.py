@@ -23,7 +23,7 @@ db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 @app.before_first_request
 def get_id():
     data = request.get_json()
-    response = data.get('uuid')
+    response = data['uuid']
     return response
     
 
