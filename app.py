@@ -21,7 +21,7 @@ db = "mysql+pymysql://root:1234@localhost:3306/chat_history"
 
 first_flag = False
 
-@app.before_request
+@app.route('/chat/open', methods = ['POST'])
 def get_id():
     global first_flag
     if not first_flag:
@@ -31,13 +31,12 @@ def get_id():
     return response
     
 
-
+user_id = get_id()
+chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
 
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
-    user_id = get_id()
-    chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
     question = request.form['input']
     response = chatbot.answer_to_me(question)
     print(response['output'])
