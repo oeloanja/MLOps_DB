@@ -31,13 +31,13 @@ def get_id():
     return response
     
 
-user_id = get_id()
 
-chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
 
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
+    user_id = get_id()
+    chatbot = LoginAgent(llm_model, db_path = db, user_id = user_id)
     question = request.form['input']
     response = chatbot.answer_to_me(question)
     print(response['output'])
