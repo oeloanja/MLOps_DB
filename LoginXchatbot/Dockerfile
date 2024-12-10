@@ -8,6 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . /dapp2
 
-EXPOSE 8000
+EXPOSE 8080
 
 CMD ["python", "app2.py"]
