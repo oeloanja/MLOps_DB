@@ -24,14 +24,14 @@ first_flag = False
 @app.route('/chat/open', methods = ['POST'])
 def get_id():
     global first_flag
+    global chatbot
     if not first_flag:
         data = request.get_json()
         response = data['uuid']
         first_flag = True
-    return response
+        chatbot = LoginAgent(llm_model, db_path = db, user_id = response)
+    return chatbot
     
-
-chatbot = LoginAgent(llm_model, db_path = db, user_id = get_id())
 
 
 @app.route('/chat/login', methods = ['POST'])
