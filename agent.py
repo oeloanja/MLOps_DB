@@ -128,7 +128,6 @@ class LoginAgent(NonLoginAgent):
         agent = self.agent_hist
         memory = self.memory
         result = agent.invoke({'input' : query}, config = {'configurable' : {'session_id' : self.session_id}})
-        print("result :", result)
         memory.add_user_message(query)
         memory.add_ai_message(result['output'])
         return result

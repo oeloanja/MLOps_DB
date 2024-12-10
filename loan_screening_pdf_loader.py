@@ -37,17 +37,3 @@ def emp_length(path):
     during_days = during.days
     emp_length_year = during_days // 365
     return emp_length_year
-
-
-# import tabula
-# import pandas as pd
-
-# def extract_tables_from_pdf(file_path):
-#     # Accepts file path as an argument
-#     tables = tabula.read_pdf(file_path, pages='all', multiple_tables=True)
-#     # Extract tables from PDF document using tabula library
-#     dataframes = []
-#     for table in tables:
-#         df = pd.DataFrame(table)
-#         dataframes.append(df)
-#     return dataframes
