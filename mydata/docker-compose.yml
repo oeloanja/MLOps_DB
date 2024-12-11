@@ -1,0 +1,17 @@
+services:
+  database:
+    image: jayiuk/mydata:1st
+    container_name: my-database
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: mydata
+    volumes:
+      - my-data:/var/lib/mysql
+    networks:
+      - my-network
+
+volumes:
+  my-data:
+
+networks:
+  my-network:
