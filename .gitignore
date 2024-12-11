@@ -3,3 +3,4 @@ __pycache__/
 MLOps_chatbot/
 .env
 *.csv
+*.h5
