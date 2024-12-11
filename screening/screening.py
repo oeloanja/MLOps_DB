@@ -4,13 +4,20 @@ import loan_screening_pdf_loader as ll
 
 app = Flask(__name__)
 
-@app.router('/api/v1/screening', methods = ['POST'])
+@app.router('/api/v1/screening/income', methods = ['POST'])
 def get_screening_input():
     data = request.get_json()
     url = data['url']
     income = ll.income(url)
+    result = {"income" : income}
+    return result
+
+@app.router('/api/v1/screening/length', methods = ['POST'])
+def get_screening_input():
+    data = request.get_json()
+    url = data['url']
     length = ll.emp_length(url)
-    result = {"income" : income, "emp_length" : length}
+    result = {"emp_length" : length}
     return result
 
 if __name__ == "__main__":
