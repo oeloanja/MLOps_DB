@@ -2,10 +2,29 @@ import fitz
 import pandas as pd
 import datetime as dt
 # import pdfplumber
+import boto3
+import os
+from urllib.parse import urlparse
+import io
 
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+
+def parse_s3_url(url):
+    parsed = urlparse(url)
+    bucket = parsed.netloc.split('.')[0]  # billit-bucket
+    key = parsed.path.lstrip('/')         # uploads/1733986366870-소득.pdf
+    return bucket, key
 
 def _get_table(path):
-    doc = fitz.open(path)
+    bucket_name, key = parse_s3_url(path)
+    s3_client = boto3.client('s3',
+                             aws_access_key_id = AWS_ACCESS_KEY_ID,
+                             aws_secret_access_key = AWS_SECRET_ACCESS_KEY)
+    buffer = io.BytesIO()
+    s3_client.download_fileobj(bucket_name, key, buffer)
+    buffer.seek(0)
+    doc = fitz.open(stream=buffer, filetype="pdf")
     for page in doc:
         tables = page.find_tables()
     return tables
