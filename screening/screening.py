@@ -9,7 +9,9 @@ def get_screening_input():
     data = request.get_json()
     url = data['url']
     income = ll.income(url)
+    print("Extracted income data:", income)
     result = {"income" : income}
+    print("Response payload:", result)
     return result
 
 @app.route('/api/v1/screening/length', methods = ['POST'])
@@ -17,7 +19,9 @@ def get_screening_length():
     data = request.get_json()
     url = data['url']
     length = ll.emp_length(url)
+    print("Extracted income data:", length)
     result = {"emp_length" : length}
+    print("Response payload:", result)
     return result
 
 if __name__ == "__main__":
