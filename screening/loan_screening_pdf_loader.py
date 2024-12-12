@@ -6,9 +6,14 @@ import boto3
 import os
 from urllib.parse import urlparse
 import io
+from dotenv import load_dotenv
 
-AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+load_dotenv()
+ID = os.getenv('AWS_ACCESS_KEY_ID')
+os.environ['OPENAI_API_KEY'] = ID
+PW = os.getenv('AWS_SECRET_ACCESS_KEY')
+os.environ['AWS_SECRET_ACCESS_KEY'] = PW
+
 
 def parse_s3_url(url):
     parsed = urlparse(url)
@@ -19,8 +24,8 @@ def parse_s3_url(url):
 def _get_table(path):
     bucket_name, key = parse_s3_url(path)
     s3_client = boto3.client('s3',
-                             aws_access_key_id = AWS_ACCESS_KEY_ID,
-                             aws_secret_access_key = AWS_SECRET_ACCESS_KEY)
+                             aws_access_key_id = ID,
+                             aws_secret_access_key = PW)
     buffer = io.BytesIO()
     s3_client.download_fileobj(bucket_name, key, buffer)
     buffer.seek(0)
