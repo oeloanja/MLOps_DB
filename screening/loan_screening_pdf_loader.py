@@ -2,9 +2,7 @@ import fitz
 import pandas as pd
 import datetime as dt
 # import pdfplumber
-import openai
-import os
-from dotenv import load_dotenv
+
 
 def _get_table(path):
     doc = fitz.open(path)
