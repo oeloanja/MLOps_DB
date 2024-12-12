@@ -13,7 +13,7 @@ def get_screening_input():
     return result
 
 @app.route('/api/v1/screening/length', methods = ['POST'])
-def get_screening_input():
+def get_screening_length():
     data = request.get_json()
     url = data['url']
     length = ll.emp_length(url)
