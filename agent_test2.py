@@ -71,7 +71,7 @@ test_obj = LoginAgent(llm_model, db_path = db, user_id = user_id)
 # print(time3)
 
 start4 = time.time()
-result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 10년 일했고, 5000 대출 받고싶어.')
+result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 10년 일했고, 5000 대출 받고싶어. 전화번호는 010-1818-1818이야.')
 end4 = time.time()
 time4 = end4 - start4
 print(result4)

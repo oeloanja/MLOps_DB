@@ -2,13 +2,13 @@ import pymysql
 
 conn = pymysql.connect(host = 'localhost', user = 'root', password='1234', db = 'mydata')
 
-def _get_data(user_id):
+def _get_data(user_pn):
     mortgage_debt = 0
     mortgage_repayment = 0
     installment = 0
     mortgage_term = 0
     cursor = conn.cursor()
-    cursor.execute(f'SELECT mortgage_debt, mortgage_repayment, installment, mortgage_term FROM mydata.user_log WHERE user_id="{user_id}"')
+    cursor.execute(f'SELECT mortgage_debt, mortgage_repayment, installment, mortgage_term FROM mydata.user_log WHERE user_pn="{user_pn}"')
     row = cursor.fetchall()
     print(row)
     row0 = row[0]
@@ -22,7 +22,7 @@ def _get_data(user_id):
     return mortgage_debt, mortgage_repayment, installment, mortgage_term
 
 
-def calculate_dti(user_id, income):
-    mortgage_debt, mortgage_repayment, installment, mortgage_term = _get_data(user_id)
+def calculate_dti(user_pn, income):
+    mortgage_debt, mortgage_repayment, installment, mortgage_term = _get_data(user_pn)
     dti = ((((mortgage_debt/mortgage_term) + mortgage_repayment) + installment) / income) * 100
     return dti
