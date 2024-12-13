@@ -25,7 +25,7 @@ class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
-   user_id:str = Field(description = 'dti 계산을 위한 데이터를 불러오는 키. 툴을 사용할 때 사용중인 유저의 user_id를 자동으로 입력해야 합니다.')
+   user_pn:str = Field(description = '사용자의 전화번호. 이게 있어야 DB에서 데이터를 불러올 수 있음.')
 
 class SimpleScreening(BaseTool):
     name = 'simple_screening'
@@ -41,10 +41,10 @@ class SimpleScreening(BaseTool):
     TypeError시 사용자에게 다시 입력 받으세요.
     """
     args_schema : Type[BaseModel] = ScreeningInput
-    def _run(self, annual_income:int, career_years:int, loan_amount:int, user_id:str, run_manager: Optional[CallbackManagerForToolRun] = None):
+    def _run(self, annual_income:int, career_years:int, loan_amount:int, user_pn:str, run_manager: Optional[CallbackManagerForToolRun] = None):
         if career_years > 10:
             career_years = 10
-        dti = getdti.calculate_dti(user_id, annual_income)
+        dti = getdti.calculate_dti(user_pn, annual_income)
         input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'job_duration' : career_years, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
         screening_result = ''

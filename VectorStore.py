@@ -1,6 +1,4 @@
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
-from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import os
 from langchain_openai import OpenAIEmbeddings
