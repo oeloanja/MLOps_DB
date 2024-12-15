@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import PDFMinerLoader, PyMuPDFLoader
+from langchain_community.document_loaders import PDFMinerLoader, PyMuPDFLoader, TextLoader
 import re
 from pdfminer.layout import LTTextBox, LTImage
 from langchain.schema import Document
@@ -21,5 +21,11 @@ def split(func):
 @split
 def docload(file_path):
     loader = PyMuPDFLoader(file_path)
+    pages = loader.load()
+    return pages
+
+@split
+def textloader(file_path):
+    loader = TextLoader(file_path)
     pages = loader.load()
     return pages
