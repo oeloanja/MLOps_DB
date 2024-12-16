@@ -1,7 +1,0 @@
-USE chat_history;
-CREATE TABLE nguyen1001(
-user_id VARCHAR(255) NOT NULL,
-input VARCHAR(255) NOT NULL,
-result VARCHAR(255) NOT NULL,
-CONSTRAINT nguyen_PK PRIMARY KEY(user_id)
-);
