@@ -1,6 +1,6 @@
 import pymysql
 
-conn = pymysql.connect(host = 'mysql-mydata:3306', user = 'root', password='1234', db = 'mydata')
+conn = pymysql.connect(host = 'mysql-mydata', port = 3306, user = 'root', password='1234', db = 'mydata')
 
 def _get_data(user_pn):
     mortgage_debt = 0
