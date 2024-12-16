@@ -48,31 +48,39 @@ test_obj = LoginAgent(llm_model, db_path = db, user_id = user_id)
 # print(result3)
 # print(time3)
 
-# start1 = time.time()
-# result1 = test_obj.answer_to_me('개인신용평가대응권이 뭐야?')['output']
-# end1 = time.time()
-# time1 = end1 - start1
-# print(result1)
-# print(type(result1))
-# print(time1)
+start1 = time.time()
+result1 = test_obj.answer_to_me('개인신용평가대응권이 뭐야?')['output']
+end1 = time.time()
+time1 = end1 - start1
+print(result1)
+print(type(result1))
+print(time1)
 
-# start2 = time.time()
-# result2 = test_obj.answer_to_me('자료열람요구권이 뭐야?')['output']
-# end2 = time.time()
-# time2 = end2 - start2
-# print(result2)
-# print(time2)
+start2 = time.time()
+result2 = test_obj.answer_to_me('자료열람요구권이 뭐야?')['output']
+end2 = time.time()
+time2 = end2 - start2
+print(result2)
+print(time2)
 
-# start3 = time.time()
-# result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')['output']
-# end3 = time.time()
-# time3 = end3 - start3
-# print(result3)
-# print(time3)
+start3 = time.time()
+result3 = test_obj.answer_to_me('그 둘의 차이가 뭐야?')['output']
+end3 = time.time()
+time3 = end3 - start3
+print(result3)
+print(time3)
 
 start4 = time.time()
-result4 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 10년 일했고, 5000 대출 받고싶어. 전화번호는 010-1818-1818이야.')
+result4 = test_obj.answer_to_me('나 대출 받고 싶은데 어떻게 받아?')['output']
 end4 = time.time()
 time4 = end4 - start4
 print(result4)
 print(time4)
+
+start5 = time.time()
+result5 = test_obj.answer_to_me('나 대출 가능해? 연봉은 2000이야. 10년 일했고, 5000 대출 받고싶어. 전화번호는 010-1818-1818이야.')
+end5 = time.time()
+time5 = end5 - start5
+print(result5)
+print(time5)
+

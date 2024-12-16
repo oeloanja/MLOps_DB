@@ -1,5 +1,5 @@
 import funcsfortool2
-from funcsfortool2 import SimpleScreening, retrieve
+from funcsfortool2 import SimpleScreening, retrieve, fin_retirever
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
@@ -10,6 +10,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 
 simple = SimpleScreening()
 retriever_tool = retrieve()
+fin_retriever_tool = fin_retirever()
 
 
 
@@ -66,11 +67,12 @@ template = """
         rule:
         - Question이 들어오면 [{tool_names}]중 하나의 툴을 선택해 사용하세요
         - 다만 '그것들의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.'와 같은 상황에선 History만 쓰세요.
-        - 질의응답 유형의 Question이 들어오면 local_retriever를 쓰세요.
-            - 예시: '자료열람요구권이 뭐야?', '대출 어떻게 받아?', '투자는 어떻게 해?'와 같은 상황에선 local_retriever를 쓰세요.
+        - 서비스 이용방법, 대출 및 투자 방법 유형의 Question이 들어오면 local_retriever를 쓰세요.
+            - 예시: '대출 받고 싶은데 어떻게 해?', '투자는 어떻게 해?', '이 서비스는 뭐하는 서비스야?', '서비스 이용방법 알려줘'와 같은 상황에선 local_retriever를 쓰세요.
         - 대출심사 유형의 Question이 들어오면 simple_screening을 쓰세요.
             - 예시: '나 대출 가능해?', '나 연봉이 4000인데 대출 가능해?', '나 대출 가능한지 봐줘.'와 같은 상황에서 simple_screening을 쓰세요.
-        - 대출심사할 때 self.user_id를 simple_screening의 user_id에 보내줘야 합니다.
+        - 금융 지식 관련 Question에선 financial_vocabulary를 쓰세요
+            - 예시 : '자료열람요구권이 뭐야?', '개인신용평가대응권을 못쓰는 상황이 있어?', '인지세가 뭐야?', '인지세는 누가, 얼마나 부담해?'와 같은 질문이 들어오면 financial_vocabulary를 쓰세요.
         - Question의 언어에 맞게 답하세요. 만약 Question이 베트남어면 베트남어로 답하세요. Question이 한국어면 한국어로 답하세요. Question의 언어를 모르면 영어로 답하세요.
 """
 
@@ -88,7 +90,7 @@ class LoginAgent(NonLoginAgent):
         self.engine = create_engine(self.db_path)
         self.user_id = user_id
         self.session_id = self._get_conversation_id()
-        self.tools = [simple, retriever_tool]
+        self.tools = [simple, retriever_tool, fin_retriever_tool]
         self.memory = SQLChatMessageHistory(
             table_name = self.user_id,
             session_id = self.session_id,

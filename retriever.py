@@ -16,7 +16,7 @@ class Retriever(Chroma):
         retriever = vec_db.as_retriever(search_kwargs = {'k' : self.searched})
         return retriever
     
-    def get_docs(self, input):
+    def get_relevant_documents(self, input):
         retriever = self.as_retriever()
         result = retriever.invoke(input)
         reordered = reorder.transform_documents(result)

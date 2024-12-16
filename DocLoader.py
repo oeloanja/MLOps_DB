@@ -1,4 +1,4 @@
-from langchain_community.document_loaders import PDFMinerLoader, PyMuPDFLoader, TextLoader
+from langchain_community.document_loaders import PDFMinerLoader, PyMuPDFLoader, DirectoryLoader, TextLoader
 import re
 from pdfminer.layout import LTTextBox, LTImage
 from langchain.schema import Document
@@ -25,7 +25,7 @@ def docload(file_path):
     return pages
 
 @split
-def textloader(file_path):
-    loader = TextLoader(file_path)
+def dirloader(dir_path):
+    loader = DirectoryLoader(dir_path, glob = '*.txt', loader_cls = TextLoader)
     pages = loader.load()
     return pages
