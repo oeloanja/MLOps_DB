@@ -1,6 +1,6 @@
 from flask import Flask, request
 from langchain_openai import ChatOpenAI
-from agent import LoginAgent, NonLoginAgent
+from agentver2 import LoginAgent, NonLoginAgent
 from dotenv import load_dotenv
 import os
 import requests
