@@ -35,14 +35,11 @@ def get_id():
     return {"status" : "success"}, 200
 
 
-
-
 @app.route('/chat/login', methods = ['POST'])
 def chat():
-    global user_pn
+    user_pn = user_pn
     q_json = request.get_json()
     question = q_json['input']
-
     response = chatbot.answer_to_me(question)
     out_json = {"output" : response['output']}
     return out_json
