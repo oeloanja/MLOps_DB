@@ -20,6 +20,7 @@ llm_model = ChatOpenAI(
 db = "mysql+pymysql://root:1234@mysqlchatbot/chat_history"
 
 first_flag = False
+user_pn
 
 @app.route('/chat/open', methods = ['POST'])
 def get_id():
@@ -37,7 +38,7 @@ def get_id():
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
-    user_pn = user_pn
+    user_pn
     q_json = request.get_json()
     question = q_json['input']
     response = chatbot.answer_to_me(question)
