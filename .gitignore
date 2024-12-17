@@ -1,6 +1,5 @@
 __pycache__/
 *.pdf
-MLOps_chatbot/
 .env
 *.csv
 *.h5

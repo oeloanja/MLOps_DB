@@ -8,6 +8,7 @@ from typing import Optional, Type
 from langchain.callbacks.manager import CallbackManagerForToolRun
 import pandas as pd
 import getdti
+import requests
 
 
 
@@ -31,7 +32,7 @@ class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
    career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
-   user_pn:str = Field(description = '사용자의 전화번호. 이게 있어야 DB에서 데이터를 불러올 수 있음.')
+   user_pn:str = Field(description = '사용자의 전화번호. 이게 있어야 DB에서 데이터를 불러올 수 있음. 이 값은 사용자에게 따로 입력 요청을 안받고 외부에서 미리 정의된 값을 불러옴.')
 
 class SimpleScreening(BaseTool):
     name = 'simple_screening'
@@ -46,6 +47,8 @@ class SimpleScreening(BaseTool):
     TypeError시 사용자에게 다시 입력 받으세요.
     """
     args_schema : Type[BaseModel] = ScreeningInput
+
+
     def _run(self, annual_income:int, career_years:int, loan_amount:int, user_pn:str, run_manager: Optional[CallbackManagerForToolRun] = None):
         if career_years > 10:
             career_years = 10

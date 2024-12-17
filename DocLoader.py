@@ -1,6 +1,5 @@
-from langchain_community.document_loaders import PDFMinerLoader, PyMuPDFLoader, DirectoryLoader, TextLoader
+from langchain_community.document_loaders import PyMuPDFLoader, DirectoryLoader, TextLoader
 import re
-from pdfminer.layout import LTTextBox, LTImage
 from langchain.schema import Document
 
 def split(func):

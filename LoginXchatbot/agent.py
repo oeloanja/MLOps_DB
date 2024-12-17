@@ -1,5 +1,5 @@
 import funcsfortool
-from funcsfortool import retrieve
+from funcsfortool import retrieve, fin_retriever
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.tools.render import render_text_description
@@ -9,6 +9,7 @@ import time
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 retriever_tool = retrieve()
+fin_retriever = fin_retriever()
 
 
 
@@ -21,9 +22,11 @@ template2 = """
         다음의 rule을 무조건 지키면서 사용자의 질문에 대답하세요.
         rule:
         - Question이 들어오면 [{tool_names}]중 하나의 툴을 선택해 사용하세요
-        - 다만 '그것들의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.'와 같은 상황에선 History만 쓰세요.
-        - 질의응답 유형의 Question이 들어오면 local_retriever를 쓰세요.
-            - 예시: '자료열람요구권이 뭐야?', '대출 어떻게 받아?', '투자는 어떻게 해?'와 같은 상황에선 local_retriever를 쓰세요.
+        - 다만 '그것들의 차이가 뭐야?', '내가 물어봤던거 다시 알려줘.', '그 둘의 차이가 뭐야?'와 같은 상황에선 History만 쓰세요.
+        - 대출심사 유형의 Question이 들어오면 simple_screening을 쓰세요.
+            - 예시: '나 대출 가능해?', '나 연봉이 4000인데 대출 가능해?', '나 대출 가능한지 봐줘.'와 같은 상황에서 simple_screening을 쓰세요.
+        - 금융 지식 관련 Question에선 financial_vocabulary를 쓰세요
+            - 예시 : '자료열람요구권이 뭐야?', '개인신용평가대응권을 못쓰는 상황이 있어?', '인지세가 뭐야?', '인지세는 누가, 얼마나 부담해?'와 같은 질문이 들어오면 financial_vocabulary를 쓰세요.
         - Question의 언어에 맞게 답하세요. 만약 Question이 베트남어면 베트남어로 답하세요. Question이 한국어면 한국어로 답하세요. Question의 언어를 모르면 영어로 답하세요.
         - 대답은 짧고 간단하게 해야합니다.
         - 말 끝에 회원가입을 유도하는 말을 덧붙이세요.
@@ -33,7 +36,7 @@ template2 = """
 class NonLoginAgent():
     def __init__(self, llm):
         self.llm = llm
-        self.tools =  [retriever_tool]
+        self.tools =  [retriever_tool, fin_retriever]
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", template2),
             MessagesPlaceholder("chat_history", optional = True),
