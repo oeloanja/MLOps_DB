@@ -39,6 +39,7 @@ def get_id():
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
+    global user_pn
     q_json = request.get_json()
     question = q_json['input']
 
