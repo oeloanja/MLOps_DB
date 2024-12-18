@@ -10,7 +10,6 @@ def _get_data(user_pn):
     cursor = conn.cursor()
     cursor.execute(f'SELECT mortgage_debt, mortgage_repayment, installment, mortgage_term FROM mydata.user_log WHERE user_pn="{user_pn}"')
     row = cursor.fetchall()
-    print(row)
     row0 = row[0]
     mortgage_debt = row0[0]
     mortgage_debt = float(mortgage_debt)
