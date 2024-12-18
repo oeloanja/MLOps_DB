@@ -26,11 +26,11 @@ ret2 = Retriever(dir2, collection2, searched = 2)
 agent_retirever2 = ret2.as_retriever()
 
 
-ml = pickle.load(open('tool_ml.pkl', 'rb'))
+ml = pickle.load(open('ml_for_tool.pkl', 'rb'))
 
 class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
-   career_years:int = Field(..., description = "사용자가 입력한 질문에 있는 경력. 혹은 사용자가 입력한 질문에 있는 근속년수.")
+   period:int = Field(..., description = "사용자가 입력한 질문에 있는 마지막 대출 후 경과한 햇수. 단위는 무조건 년으로 받음.")
    loan_amount:int = Field(..., description = "사용자가 입력한 질문에 있는 대출 희망 금액.")
    user_pn:str = Field(description = '사용자의 전화번호. 이게 있어야 DB에서 데이터를 불러올 수 있음. 이 값은 사용자에게 따로 입력 요청을 안받고 외부에서 미리 정의된 값을 불러옴.')
 
@@ -49,11 +49,9 @@ class SimpleScreening(BaseTool):
     args_schema : Type[BaseModel] = ScreeningInput
 
 
-    def _run(self, annual_income:int, career_years:int, loan_amount:int, user_pn:str, run_manager: Optional[CallbackManagerForToolRun] = None):
-        if career_years > 10:
-            career_years = 10
+    def _run(self, annual_income:int, period:int, loan_amount:int, user_pn:str, run_manager: Optional[CallbackManagerForToolRun] = None):
         dti = getdti.calculate_dti(user_pn, annual_income)
-        input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'emplength' : career_years, 'annual_inc' : annual_income}])
+        input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'issue_d_period' : period, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
         screening_result = ''
         if prediction[0] == 0:
