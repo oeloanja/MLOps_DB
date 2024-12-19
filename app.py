@@ -25,11 +25,11 @@ db = "mysql+pymysql://root:1234@mysqlchatbot/chat_history"
 def get_id():
     # global first_flag
     global chatbot
-    global user_pn
+    # global user_pn
     # if not first_flag:
     data = request.get_json()
     response = data['uuid']
-    user_pn = data['user_pn']
+    # user_pn = data['user_pn']
     # first_flag = True
     chatbot = LoginAgent(llm_model, db_path = db, user_id = response)
     return {"status" : "success"}, 200
