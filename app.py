@@ -19,25 +19,24 @@ llm_model = ChatOpenAI(
 )
 db = "mysql+pymysql://root:1234@mysqlchatbot/chat_history"
 
-first_flag = False
+# first_flag = False
 
 @app.route('/chat/open', methods = ['POST'])
 def get_id():
-    global first_flag
+    # global first_flag
     global chatbot
-    global user_pn
-    if not first_flag:
-        data = request.get_json()
-        response = data['uuid']
-        user_pn = data['user_pn']
-        first_flag = True
-        chatbot = LoginAgent(llm_model, db_path = db, user_id = response)
+    # global user_pn
+    # if not first_flag:
+    data = request.get_json()
+    response = data['uuid']
+    # user_pn = data['user_pn']
+    # first_flag = True
+    chatbot = LoginAgent(llm_model, db_path = db, user_id = response)
     return {"status" : "success"}, 200
 
 
 @app.route('/chat/login', methods = ['POST'])
 def chat():
-    global user_pn
     q_json = request.get_json()
     question = q_json['input']
     response = chatbot.answer_to_me(question)

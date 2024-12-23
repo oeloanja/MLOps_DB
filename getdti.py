@@ -1,6 +1,6 @@
 import pymysql
 
-conn = pymysql.connect(host = 'mysql-mydata', port = 3306, user = 'root', password='1234', db = 'mydata')
+conn = pymysql.connect(host = 'localhost', port = 3306, user = 'root', password='1234', db = 'mydata')
 
 def _get_data(user_pn):
     mortgage_debt = 0
@@ -10,7 +10,6 @@ def _get_data(user_pn):
     cursor = conn.cursor()
     cursor.execute(f'SELECT mortgage_debt, mortgage_repayment, installment, mortgage_term FROM mydata.user_log WHERE user_pn="{user_pn}"')
     row = cursor.fetchall()
-    print(row)
     row0 = row[0]
     mortgage_debt = row0[0]
     mortgage_debt = float(mortgage_debt)
