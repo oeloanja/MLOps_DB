@@ -77,11 +77,18 @@ test_obj = LoginAgent(llm_model, db_path = db, user_id = user_id)
 # time4 = end4 - start4
 # print(result4)
 # print(time4)
-question = '나 대출 가능해? 연봉은 3000만원이야. 대출 받은지 2년 됐고, 5억 대출 받고싶어.'
-# if "대출 가능" in question:
-#     question = f"{question} (user_pn: 010-1234-5678)"
+
+result1 = test_obj.answer_to_me('나 대출 가능해?')
+print(result1)
+
+result2 = test_obj.answer_to_me('연봉은 2800이야.')
+print(result2)
+
+result3 = test_obj.answer_to_me('대출 받은지 3년 됐어.')
+print(result3)
+
 start5 = time.time()
-result5 = test_obj.answer_to_me(question)
+result5 = test_obj.answer_to_me('5억 대출 받고싶어.')
 end5 = time.time()
 time5 = end5 - start5
 print(result5)
