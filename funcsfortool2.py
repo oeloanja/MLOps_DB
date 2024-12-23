@@ -8,9 +8,9 @@ from typing import Optional, Type
 from langchain.callbacks.manager import CallbackManagerForToolRun
 import pandas as pd
 import getdti
+from flask import request
+
 import requests
-
-
 
 
 dirpath = './MLOps_chatbot'
@@ -49,7 +49,8 @@ class SimpleScreening(BaseTool):
 
 
     def _run(self, annual_income:int, period:int, loan_amount:int, run_manager: Optional[CallbackManagerForToolRun] = None):
-        user_pn = '010-1818-1818'
+        pn_data = request.get_json()
+        user_pn = pn_data['user_pn']
         dti = getdti.calculate_dti(user_pn, annual_income)
         input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'issue_d_period' : period, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
