@@ -1,3 +1,7 @@
+'''
+벡터DB를 기반으로 retriever를 만드는 역할을 하는 모듈
+'''
+
 from langchain_chroma.vectorstores import Chroma
 import VectorStore
 from langchain_core.retrievers import BaseRetriever
