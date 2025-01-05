@@ -1,3 +1,20 @@
+'''
+agent가 쓸 툴들을 구현해놓은 모듈
+SimpleScreening은 간이대출심사 툴
+retrieve는 서비스 사용법 알려주는 툴을 위한 모듈
+fin_retirever는 금융 어휘 사전 툴을 위한 모듈
+
+SimpleScreening 모듈은 getdti 모듈을 통해 dti를 구함
+그 후 loan_amnt, dti, issue_d_peroid, annual_income을 간이대출심사 모델에 입력
+그 결과값을 통해 대출 가능 여부 확인
+
+retrieve는 서비스 사용방법 질의응답 툴을 위한 모듈
+agentic rag 개념을 활용해 구현
+
+fin_retirever는 간단한 금융 어휘를 알려주는 툴을 위한 모듈
+이 역시 agentic rag 개념을 활용해 구현현
+'''
+
 from langchain_core.tools import BaseTool
 import pickle
 from pydantic import BaseModel, Field
@@ -26,7 +43,7 @@ ret2 = Retriever(dir2, collection2, searched = 2)
 agent_retirever2 = ret2.as_retriever()
 
 
-ml = pickle.load(open('ml_for_tool.pkl', 'rb'))
+ml = pickle.load(open('ml_for_tool.pkl', 'rb')) #간이대출심사 모델
 
 class ScreeningInput(BaseModel):
    annual_income:int = Field(..., description = "사용자가 입력한 질문에 있는 연봉. 혹은 사용자가 입력한 질문에 있는 소득.")
@@ -49,9 +66,9 @@ class SimpleScreening(BaseTool):
 
 
     def _run(self, annual_income:int, period:int, loan_amount:int, run_manager: Optional[CallbackManagerForToolRun] = None):
-        pn_data = request.get_json()
-        user_pn = pn_data['user_pn']
-        dti = getdti.calculate_dti(user_pn, annual_income)
+        pn_data = request.get_json() #getdti 모듈을 통해 dti를 구하려면 사용자의 전화번호가 필요함. 이 경우 세션이 아니라 로컬 스토리지를 통해 로그인 정보를 확인해서 서버에 전화번호를 요청함.
+        user_pn = pn_data['user_pn'] 
+        dti = getdti.calculate_dti(user_pn, annual_income) #사용자 전화번호는 DB에서 dti를 구할 때 필요한 데이터들을 찾을 때 씀.
         input_data = pd.DataFrame([{'loan_amnt' : loan_amount, 'dti' : dti, 'issue_d_period' : period, 'annual_inc' : annual_income}])
         prediction = ml.predict(input_data)
         screening_result = ''
